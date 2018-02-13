@@ -4,3 +4,9 @@
 *.iml
 out/*
 txt_sentoken/*
+src/.DS_Store
+.DS_Store
+src/chp38/.DS_Store
+src/chp38/SentimentAnalysis/.DS_Store
+src/com/.DS_Store
+src/com/aliasi/.DS_Store
