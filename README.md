@@ -1,6 +1,10 @@
-# Project Title
+# Stock Market Predictor
 
-One Paragraph of project description goes here
+This project is aimed at predicting the future change in stock market based on news headlines.
+
+Key techniques to be applied:
+  - Sentiment Analysis
+  - Artificial Neural networks
 
 ## Getting Started
 
