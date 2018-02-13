@@ -18,7 +18,7 @@ public class SentimentAnalysis {
 
     public SentimentAnalysis(String[] args) {
         System.out.println("\nBASIC POLARITY DEMO");
-        mPolarityDir = new File(args[0],"txt_sentoken");
+        mPolarityDir = new File(args[0],"news_headlines");
         System.out.println("\nData Directory=" + mPolarityDir);
         mCategories = mPolarityDir.list();
         int nGram = 8;
