@@ -7,85 +7,202 @@ import com.aliasi.classify.DynamicLMClassifier;
 
 import com.aliasi.lm.NGramProcessLM;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
+/**
+ * Class to handle communication with Lingpipe, and analyse
+ * the news headlines.
+ *
+ * @author Charles Palmer
+ */
 public class SentimentAnalysis {
 
     File mPolarityDir;
     String[] mCategories;
+    ArrayList<NewsHeadline> testFiles;
     DynamicLMClassifier<NGramProcessLM> mClassifier;
 
-    public SentimentAnalysis(String[] args) {
-        System.out.println("\nBASIC POLARITY DEMO");
-        mPolarityDir = new File(args[0],"news_headlines");
-        System.out.println("\nData Directory=" + mPolarityDir);
+    public SentimentAnalysis(String dir) {
+        testFiles = new ArrayList<NewsHeadline>();
+        mPolarityDir = new File(dir,"news_headlines");
         mCategories = mPolarityDir.list();
         int nGram = 8;
-        mClassifier
-                = DynamicLMClassifier
-                .createNGramProcess(mCategories,nGram);
+        mClassifier = DynamicLMClassifier.createNGramProcess(mCategories,nGram);
     }
 
-    public void run() throws ClassNotFoundException, IOException {
-        train();
-        evaluate();
-    }
-
+    /**
+     * CV for the folder option
+     *
+     * @param file
+     * @return
+     */
     boolean isTrainingFile(File file) {
         return file.getName().charAt(2) != '9';  // test on fold 9
     }
 
-    void train() throws IOException {
-        int numTrainingCases = 0;
-        int numTrainingChars = 0;
-        System.out.println("\nTraining.");
+    /**
+     * Class to handle news headlines from multiple
+     * files, train the model, and evaluate the test
+     * data.
+     *
+     * @param folder
+     * @throws IOException
+     */
+    public void handleFromFolder(String folder) throws IOException {
+        mPolarityDir = new File(folder,"news_headlines");
+        mCategories = mPolarityDir.list();
+
         for (int i = 0; i < mCategories.length; ++i) {
-            String category = mCategories[i];
-            Classification classification
-                    = new Classification(category);
-            File file = new File(mPolarityDir,mCategories[i]);
-            File[] trainFiles = file.listFiles();
-            for (int j = 0; j < trainFiles.length; ++j) {
-                File trainFile = trainFiles[j];
+            File file = new File(mPolarityDir, mCategories[i]);
+            File[] allFiles = file.listFiles();
+
+            Classification classification = new Classification(mCategories[i]);
+
+
+            for (int j = 0; j < allFiles.length; ++j) {
+                File trainFile = allFiles[j];
+                String headline = Files.readFromFile(trainFile, "ISO-8859-1");
+
                 if (isTrainingFile(trainFile)) {
-                    ++numTrainingCases;
-                    String review = Files.readFromFile(trainFile,"ISO-8859-1");
-                    numTrainingChars += review.length();
-                    Classified<CharSequence> classified
-                            = new Classified<CharSequence>(review,classification);
-                    mClassifier.handle(classified);
+                    train(headline, classification);
+                } else {
+                    // Build test data with the nth fold
+                    testFiles.add(new NewsHeadline(headline, mCategories[i]));
                 }
             }
         }
-        System.out.println("  # Training Cases=" + numTrainingCases);
-        System.out.println("  # Training Chars=" + numTrainingChars);
+        evaluateTraining();
     }
 
-    void evaluate() throws IOException {
-        System.out.println("\nEvaluating.");
-        int numTests = 0;
-        int numCorrect = 0;
+    /**
+     * Class to handle news headlines from a single (csv)
+     * file, and then train the model
+     *
+     * Todo:
+     *  - Need to do cross validation - how?
+     * @param folder
+     * @throws IOException
+     */
+    public void handleFromFile(String folder) throws IOException {
+        mPolarityDir = new File(folder,"news_headlines");
+        mCategories = mPolarityDir.list();
+        String line;
+
         for (int i = 0; i < mCategories.length; ++i) {
-            String category = mCategories[i];
-            File file = new File(mPolarityDir,mCategories[i]);
-            File[] trainFiles = file.listFiles();
-            for (int j = 0; j < trainFiles.length; ++j) {
-                File trainFile = trainFiles[j];
-                if (!isTrainingFile(trainFile)) {
-                    String review = Files.readFromFile(trainFile,"ISO-8859-1");
-                    ++numTests;
-                    Classification classification
-                            = mClassifier.classify(review);
-                    if (classification.bestCategory().equals(category))
-                        ++numCorrect;
+            Classification classification = new Classification(mCategories[i]);
+            String csvFile = folder + "news_headlines/" + mCategories[i] + "/" + mCategories[i] + ".csv";
+
+            try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+
+                while ((line = br.readLine()) != null) {
+
+                    String[] headline = line.split(",");
+
+                    train(headline[1], classification);
                 }
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
-        System.out.println("  # Test Cases=" + numTests);
+    }
+
+    /**
+     * Generate a list of test news headlines, to test the model
+     *
+     * @param data
+     */
+    public void prepareTrainingFiles(ArrayList data){
+        for(int i=0; i < data.size(); i++){
+
+            NewsHeadline temp = new NewsHeadline(data.get(i).toString(), "");
+
+            this.testFiles.add(temp);
+        }
+    }
+
+    /**
+     * Method to add a single piece of data to the test dataset.
+     * To allow recursive building of the data to be external from
+     * this file.
+     *
+     * @param headline
+     */
+    public void addTestData(String headline){
+        NewsHeadline newNews = new NewsHeadline(headline, "");
+
+        this.testFiles.add(newNews);
+    }
+
+    /**
+     * Method to add a single piece of data to the training model.
+     * To allow recursive building of the model be external from this
+     * file.
+     *
+     * @param headline
+     * @param category
+     */
+    public void addToTraining(String headline, String category){
+        Classification classification = new Classification(category);
+
+        train(headline, classification);
+    }
+
+    /**
+     * Evaluate using CV so we can check if the model has got it
+     * correct
+     */
+    void evaluateTraining(){
+        int numCorrect = 0;
+
+        for (int i=0; i < this.testFiles.size(); i++) {
+            NewsHeadline temp = this.testFiles.get(i);
+
+            Classification classification
+                    = mClassifier.classify((CharSequence) temp.getHeadline());
+
+            if (classification.bestCategory().equals(temp.getClassification())) {
+                ++numCorrect;
+            }
+
+        }
+
         System.out.println("  # Correct=" + numCorrect);
         System.out.println("  % Correct="
-                + ((double)numCorrect)/(double)numTests);
+                + ((double)numCorrect)/(double)200);
+    }
+
+    /**
+     * Evaluate a whole new news headline that we 'don't know' the classification of
+     * And display what is was classified as
+     */
+    public void evaluateTest(){
+        for (int i=0; i < this.testFiles.size(); i++) {
+            NewsHeadline temp = this.testFiles.get(i);
+
+            Classification classification
+                    = mClassifier.classify((CharSequence) temp.getHeadline());
+
+            System.out.println(temp.getHeadline() + "------" + classification.bestCategory());
+
+        }
+    }
+
+    /**
+     * Add news headlines to the model
+     *
+     * @param headline
+     * @param classification
+     */
+    void train(String headline, Classification classification){
+        Classified<CharSequence> classified
+                = new Classified<CharSequence>((CharSequence) headline, classification);
+
+        mClassifier.handle(classified);
     }
 
 
