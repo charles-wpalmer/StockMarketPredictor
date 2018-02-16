@@ -35,7 +35,8 @@ public class SentimentAnalysis {
     }
 
     /**
-     * CV for the folder option
+     * Allows for CV. If the fold is 9 (i.e file is 900+) then use it as test
+     * Data.
      *
      * @param file
      * @return
