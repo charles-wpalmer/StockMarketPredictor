@@ -8,6 +8,12 @@ package chp38.APIHandler;
  * @since 2018-13-02
  */
 public class AlphaVantage {
+
+    /**
+     * The key to be used for the Alpha Vantage API
+     */
+    String APIKey = "YC8VVZQTBQZPJG27";
+
     AlphaVantage(){
 
     }
