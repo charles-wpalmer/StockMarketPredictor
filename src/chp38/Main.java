@@ -27,14 +27,15 @@ public class Main {
                     String[] headline = line.split(",");
 
                     if(headline.length > 1) {
-                        headlines.add(headline[1]);
+                        //headlines.add(headline[1]);
+                        SA.addTestData(headline[1]);
                     }
                 }
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            SA.prepareTrainingFiles(headlines);
+            //SA.prepareTrainingFiles(headlines);
             SA.evaluateTest();
         } catch (Throwable t) {
             System.out.println("Thrown: " + t);
