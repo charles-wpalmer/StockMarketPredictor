@@ -305,10 +305,12 @@ public class HeadlineChunker implements Chunker {
                 if(headline.length > 1) {
 
                     System.out.println("\n" + headline[1]);
+
                     String[] tokens
                             = tokenizerFactory
                             .tokenizer(headline[1].toCharArray(), 0, headline[1].length())
                             .tokenize();
+
                     List<String> tokenList = Arrays.asList(tokens);
                     Tagging<String> tagging = posTagger.tag(tokenList);
                     for (int j = 0; j < tokenList.size(); ++j)

@@ -206,5 +206,14 @@ public class SentimentAnalysis {
         mClassifier.handle(classified);
     }
 
+    /**
+    double calculatePMI(double wordOne, double wordTwo){
+        double PMI;
+
+
+
+        return PMI;
+    }
+    */
 
 }
