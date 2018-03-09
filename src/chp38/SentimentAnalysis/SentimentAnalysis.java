@@ -1,4 +1,13 @@
 package chp38.SentimentAnalysis;
+import com.aliasi.chunk.Chunk;
+import com.aliasi.chunk.Chunking;
+import com.aliasi.hmm.HiddenMarkovModel;
+import com.aliasi.hmm.HmmDecoder;
+import com.aliasi.tag.Tagging;
+import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
+import com.aliasi.tokenizer.TokenizerFactory;
+import com.aliasi.util.AbstractExternalizable;
+import com.aliasi.util.FastCache;
 import com.aliasi.util.Files;
 
 import com.aliasi.classify.Classification;
@@ -12,6 +21,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Class to handle communication with Lingpipe, and analyse
@@ -26,12 +37,16 @@ public class SentimentAnalysis {
     ArrayList<NewsHeadline> testFiles;
     DynamicLMClassifier<NGramProcessLM> mClassifier;
 
-    public SentimentAnalysis(String dir) {
-        testFiles = new ArrayList<NewsHeadline>();
-        mPolarityDir = new File(dir,"news_headlines");
-        mCategories = mPolarityDir.list();
-        int nGram = 8;
-        mClassifier = DynamicLMClassifier.createNGramProcess(mCategories,nGram);
+    HmmDecoder posTagger;
+    TokenizerFactory tokenizerFactory;
+    HeadlineChunker chunker;
+
+    public SentimentAnalysis() {
+        //testFiles = new ArrayList<NewsHeadline>();
+        //mPolarityDir = new File(dir,"news_headlines");
+        //mCategories = mPolarityDir.list();
+        //int nGram = 8;
+        //mClassifier = DynamicLMClassifier.createNGramProcess(mCategories,nGram);
     }
 
     /**
@@ -207,13 +222,78 @@ public class SentimentAnalysis {
     }
 
     /**
-    double calculatePMI(double wordOne, double wordTwo){
-        double PMI;
+     * Method to load the Hmm model for the POS tagger, and chunker
+     */
+    public void loadHmmModel(){
+        String dir = "/Users/charlespalmer/Downloads/POSTagging/train-brown";
+        File hmmFile = new File(dir);
+        int cacheSize = Integer.valueOf(256);
+        FastCache<String,double[]> cache = new FastCache<String,double[]>(cacheSize);
+
+        HiddenMarkovModel posHmm;
+        try {
+            posHmm
+                    = (HiddenMarkovModel)
+                    AbstractExternalizable.readObject(hmmFile);
+        } catch (IOException e) {
+            System.out.println("Exception reading model=" + e);
+            e.printStackTrace(System.out);
+            return;
+        } catch (ClassNotFoundException e) {
+            System.out.println("Exception reading model=" + e);
+            e.printStackTrace(System.out);
+            return;
+        }
+
+        this.posTagger  = new HmmDecoder(posHmm,null,cache);
+        this.tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
+        this.chunker = new HeadlineChunker(posTagger,tokenizerFactory);
+    }
+
+    /**
+     * Start the process of learning the sentiment of a news headline
+     *
+     * @param headline
+     * @return
+     */
+    public double detectSentiment(String headline){
+        if(this.chunker == null){
+            this.loadHmmModel();
+        }
+
+        System.out.println("\n" + headline);
+
+        String[] tokens
+                = this.tokenizerFactory
+                .tokenizer(headline.toCharArray(), 0, headline.length())
+                .tokenize();
+
+        List<String> tokenList = Arrays.asList(tokens);
+        Tagging<String> tagging = posTagger.tag(tokenList);
+        //for (int j = 0; j < tokenList.size(); ++j)
+            //System.out.print(tokens[j] + "/" + tagging.tag(j) + " ");
+        //System.out.println();
+
+        Chunking chunking = chunker.chunk(headline);
+        CharSequence cs = chunking.charSequence();
+        for (Chunk chunk : chunking.chunkSet()) {
+            String type = chunk.type();
+            int start = chunk.start();
+            int end = chunk.end();
+            CharSequence text = cs.subSequence(start, end);
+            System.out.println("  " + type + "(" + start + "," + end + ") " + text);
+        }
+
+        return 0.0;
+    }
+
+
+    private double calculatePMI(String phrase){
+        double PMI = 0.0;
 
 
 
         return PMI;
     }
-    */
 
 }
