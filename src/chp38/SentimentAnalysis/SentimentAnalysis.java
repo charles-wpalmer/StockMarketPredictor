@@ -261,8 +261,6 @@ public class SentimentAnalysis {
             this.loadHmmModel();
         }
 
-        System.out.println("\n" + headline);
-
         String[] tokens
                 = this.tokenizerFactory
                 .tokenizer(headline.toCharArray(), 0, headline.length())
@@ -270,25 +268,36 @@ public class SentimentAnalysis {
 
         List<String> tokenList = Arrays.asList(tokens);
         Tagging<String> tagging = posTagger.tag(tokenList);
-        //for (int j = 0; j < tokenList.size(); ++j)
-            //System.out.print(tokens[j] + "/" + tagging.tag(j) + " ");
-        //System.out.println();
 
         Chunking chunking = chunker.chunk(headline);
         CharSequence cs = chunking.charSequence();
+
+        double SO = 0.0;
+        int count = 0;
+
         for (Chunk chunk : chunking.chunkSet()) {
+            count++;
             String type = chunk.type();
             int start = chunk.start();
             int end = chunk.end();
             CharSequence text = cs.subSequence(start, end);
             System.out.println("  " + type + "(" + start + "," + end + ") " + text);
+            SO += this.calculateSO((String)text);
         }
 
-        return 0.0;
+        return SO/count;
     }
 
 
-    private double calculatePMI(String phrase){
+    private double calculateSO(String phrase){
+        double positivePMI = calculatePMI(phrase, "positive");
+
+        double negativePMI = calculatePMI(phrase, "negative");
+
+        return positivePMI - negativePMI;
+    }
+
+    private double calculatePMI(String phrase, String word){
         double PMI = 0.0;
 
 
