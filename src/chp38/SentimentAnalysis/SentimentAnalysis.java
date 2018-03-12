@@ -261,6 +261,7 @@ public class SentimentAnalysis {
             this.loadHmmModel();
         }
 
+        System.out.println(headline);
         String[] tokens
                 = this.tokenizerFactory
                 .tokenizer(headline.toCharArray(), 0, headline.length())
@@ -288,7 +289,12 @@ public class SentimentAnalysis {
         return SO/count;
     }
 
-
+    /**
+     * Method to calculate the semantic orientation of a key-phrase.
+     *
+     * @param phrase
+     * @return double
+     */
     private double calculateSO(String phrase){
         double positivePMI = calculatePMI(phrase, "positive");
 
@@ -297,10 +303,18 @@ public class SentimentAnalysis {
         return positivePMI - negativePMI;
     }
 
+    /**
+     * Method to calculate the PMI of a key-phrase extracted from a news headline
+     *
+     * @param phrase
+     * @param word
+     * @return double
+     */
     private double calculatePMI(String phrase, String word){
         double PMI = 0.0;
-
-
+        //TODO:
+        //  -   Probability of the phrase and the keywork existing
+        //  -   log2 ( p(phrase & word)/p(phrase)*p(word) )
 
         return PMI;
     }
