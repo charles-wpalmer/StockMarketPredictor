@@ -46,12 +46,11 @@ public class RedditApi {
 
         jsonObject = (JSONObject) object;
 
-        JSONArray msg = (JSONArray) jsonObject.get("children");
-        Iterator<String> iterator = msg.iterator();
+        JSONArray list = (JSONArray) jsonObject.get("children");
 
         ArrayList<String> headlineList = new ArrayList<>();
-        for(int c = 0; c < msg.size(); c++){
-            object = parser.parse(msg.get(c).toString());
+        for(int c = 0; c < list.size(); c++){
+            object = parser.parse(list.get(c).toString());
 
             jsonObject = (JSONObject) object;
 
