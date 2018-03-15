@@ -316,15 +316,15 @@ public class SentimentAnalysis {
         //System.out.println("cb: " + combinedProb + " ph: " + probPhrase + " wrd: " + probWord);
 
         if(probPhrase == 0){
-            probPhrase = 0.1;
+            probPhrase = 0.001;
         }
 
         if(probWord == 0){
-            probWord = 0.1;
+            probWord = 0.001;
         }
 
         if(combinedProb == 0){
-            combinedProb = 0.1;
+            combinedProb = 0.001;
         }
 
         PMI = combinedProb / (probPhrase * probWord);
