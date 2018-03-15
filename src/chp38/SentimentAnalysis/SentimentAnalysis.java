@@ -42,11 +42,7 @@ public class SentimentAnalysis {
     HeadlineChunker chunker;
 
     public SentimentAnalysis() {
-        //testFiles = new ArrayList<NewsHeadline>();
-        //mPolarityDir = new File(dir,"news_headlines");
-        //mCategories = mPolarityDir.list();
-        //int nGram = 8;
-        //mClassifier = DynamicLMClassifier.createNGramProcess(mCategories,nGram);
+
     }
 
     /**
@@ -312,11 +308,34 @@ public class SentimentAnalysis {
      */
     private double calculatePMI(String phrase, String word){
         double PMI = 0.0;
+
+        int combinedProb, probPhrase, probWord = 0;
+        //combinedProb = searchCorpus(phrase, word);
         //TODO:
-        //  -   Probability of the phrase and the keywork existing
+        //  -   Probability of the phrase and the keyword co-existing
         //  -   log2 ( p(phrase & word)/p(phrase)*p(word) )
 
         return PMI;
+    }
+
+    private int searchCorpus(String phrase, String word){
+
+        String line = "";
+        try (BufferedReader br = new BufferedReader(new FileReader("/Users/charlespalmer/Downloads/RedditNews.csv"))) {
+            while ((line = br.readLine()) != null) {
+
+                String[] headline = line.split(",");
+                if (headline.length > 1) {
+                    if(headline[1].contains(phrase) && headline[1].contains(word)){
+                        System.out.println(phrase);
+                    }
+                }
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        phrase.contains(word);
+        return 0;
     }
 
 }

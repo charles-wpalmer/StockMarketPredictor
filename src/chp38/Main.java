@@ -1,5 +1,6 @@
 package chp38;
 
+import chp38.APIHandler.RedditApi;
 import chp38.SentimentAnalysis.SentimentAnalysis;
 
 import java.io.BufferedReader;
@@ -63,22 +64,32 @@ public class Main {
         //SA.detectSentiment(headline);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         // Build model with training data
         // Prepare data, and run it through the model
+
         SentimentAnalysis SA = new SentimentAnalysis();
 
-        String line = "";
-        try (BufferedReader br = new BufferedReader(new FileReader("/Users/charlespalmer/Downloads/RedditNews.csv"))) {
-            while ((line = br.readLine()) != null) {
+        //try (BufferedReader br = new BufferedReader(new FileReader("/Users/charlespalmer/Downloads/RedditNews.csv"))) {
+            //while ((line = br.readLine()) != null) {
 
-                String[] headline = line.split(",");
-                if (headline.length > 1) {
-                    SA.detectSentiment(headline[1]);
-                }
-            }
-        } catch (Exception e){
-            e.printStackTrace();
+                //String[] headline = line.split(",");
+                //if (headline.length > 1) {
+                    //SA.detectSentiment("Britain Sounds Allies Out About Invoking NATO Treaty");
+                //}
+            //}
+        //} catch (Exception e){
+            //e.printStackTrace();
+        //}
+
+
+
+        RedditApi r = new RedditApi();
+
+        ArrayList headlines = r.getHeadlines();
+
+        for(int c = 0; c < 25; c++){
+            SA.detectSentiment(headlines.get(c).toString());
         }
     }
 }

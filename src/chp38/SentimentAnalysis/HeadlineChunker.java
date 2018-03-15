@@ -155,11 +155,12 @@ public class HeadlineChunker implements Chunker {
         // PUNCTUATION_TAGS.add("''");
         PUNCTUATION_TAGS.add(".");
         PUNCTUATION_TAGS.add("*");
-        // PUNCTUATION_TAGS.add(","); // miss comma-separated phrases
+        PUNCTUATION_TAGS.add(","); // miss comma-separated phrases
         // PUNCTUATION_TAGS.add("(");
         // PUNCTUATION_TAGS.add(")");
         // PUNCTUATION_TAGS.add("*"); // negation "not"
         // PUNCTUATION_TAGS.add("--");
+        PUNCTUATION_TAGS.add("-");
         // PUNCTUATION_TAGS.add(":");
     }
 
