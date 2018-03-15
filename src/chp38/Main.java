@@ -1,51 +1,17 @@
 package chp38;
 
+import chp38.APIHandler.AlphaVantage;
 import chp38.APIHandler.RedditApi;
 import chp38.SentimentAnalysis.SentimentAnalysis;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+class Handler{
 
-public class Main {
-    /**
-    public static void main(String[] args) {
-        String[] dir = new String[1];
-        dir[0] = "./";
+    private SentimentAnalysis SA;
 
-        //dir[0] = "/Users/charlespalmer/Downloads/RedditNews.csv";
-
-        try {
-            SentimentAnalysis SA = new SentimentAnalysis(dir[0]);
-            SA.handleFromFolder(dir[0]);
-            String line = "";
-            ArrayList headlines = new ArrayList();
-
-            try (BufferedReader br = new BufferedReader(new FileReader("/Users/charlespalmer/Downloads/RedditNews.csv"))) {
-
-                while ((line = br.readLine()) != null) {
-
-                    String[] headline = line.split(",");
-
-                    if(headline.length > 1) {
-                        //headlines.add(headline[1]);
-                        SA.addTestData(headline[1]);
-                    }
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //SA.prepareTrainingFiles(headlines);
-            SA.evaluateTest();
-        } catch (Throwable t) {
-            System.out.println("Thrown: " + t);
-            t.printStackTrace(System.out);
-        }
-    }
- */
+    private AlphaVantage AV;
 
     public void handleTrainingData(){
         // TODO;
@@ -54,42 +20,41 @@ public class Main {
         //  -
     }
 
-    public void prepareData(){
+    public void prepareData() throws Exception {
         // TODO;
-        //  -   Gather news headlines from reddit (Reddit API handler)
-        //  -   Perform Sentiment Analysis (through SA -> HeadlineChunker)
         //  -   Start to build the object, and add in the features
+        //      -> Using headlineSentiments
+        //      -> prices
 
-        //SentimentAnalysis SA = new SentimentAnalysis();
-        //SA.detectSentiment(headline);
+        RedditApi Reddit = new RedditApi();
+
+        ArrayList<String> headlines = Reddit.getHeadlines();
+        double[] headlineSentiments = new double[25];
+
+        for(int c = 0; c < 25; c++){
+            headlineSentiments[c] = this.SA.detectSentiment(headlines.get(c));
+        }
+
+        String[] prices = this.AV.getDailyPrices();
+        System.out.println(Arrays.toString(headlineSentiments));
     }
 
+    public void run() throws Exception {
+        this.SA = new SentimentAnalysis();
+        this.AV = new AlphaVantage("DJIA");
+
+        prepareData();
+    }
+
+}
+
+
+public class Main {
     public static void main(String[] args) throws Exception {
         // Build model with training data
         // Prepare data, and run it through the model
+        Handler han = new Handler();
 
-        SentimentAnalysis SA = new SentimentAnalysis();
-
-        //try (BufferedReader br = new BufferedReader(new FileReader("/Users/charlespalmer/Downloads/RedditNews.csv"))) {
-            //while ((line = br.readLine()) != null) {
-
-                //String[] headline = line.split(",");
-                //if (headline.length > 1) {
-                    //SA.detectSentiment("Britain Sounds Allies Out About Invoking NATO Treaty");
-                //}
-            //}
-        //} catch (Exception e){
-            //e.printStackTrace();
-        //}
-
-
-
-        RedditApi r = new RedditApi();
-
-        ArrayList headlines = r.getHeadlines();
-
-        for(int c = 0; c < 25; c++){
-            SA.detectSentiment(headlines.get(c).toString());
-        }
+        han.run();
     }
 }

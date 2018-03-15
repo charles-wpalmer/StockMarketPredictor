@@ -257,7 +257,6 @@ public class SentimentAnalysis {
             this.loadHmmModel();
         }
 
-        System.out.println(headline);
         String[] tokens
                 = this.tokenizerFactory
                 .tokenizer(headline.toCharArray(), 0, headline.length())
@@ -278,8 +277,8 @@ public class SentimentAnalysis {
             int start = chunk.start();
             int end = chunk.end();
             CharSequence text = cs.subSequence(start, end);
-            System.out.println("  " + type + "(" + start + "," + end + ") " + text);
             SO += this.calculateSO((String)text);
+
         }
 
         return SO/count;
@@ -308,34 +307,63 @@ public class SentimentAnalysis {
      */
     private double calculatePMI(String phrase, String word){
         double PMI = 0.0;
+        double combinedProb, probPhrase, probWord = 0;
 
-        int combinedProb, probPhrase, probWord = 0;
-        //combinedProb = searchCorpus(phrase, word);
-        //TODO:
-        //  -   Probability of the phrase and the keyword co-existing
-        //  -   log2 ( p(phrase & word)/p(phrase)*p(word) )
+        combinedProb = searchCorpus(phrase, word);
+        probPhrase = searchCorpus(phrase, "NA");
+        probWord = searchCorpus("NA", word);
 
+        //System.out.println("cb: " + combinedProb + " ph: " + probPhrase + " wrd: " + probWord);
+
+        if(probPhrase == 0){
+            probPhrase = 0.1;
+        }
+
+        if(probWord == 0){
+            probWord = 0.1;
+        }
+
+        if(combinedProb == 0){
+            combinedProb = 0.1;
+        }
+
+        PMI = combinedProb / (probPhrase * probWord);
+        PMI = Math.log(PMI) / Math.log(2);
+        //System.out.println(PMI);
         return PMI;
     }
 
     private int searchCorpus(String phrase, String word){
 
         String line = "";
+        int count = 0;
+
         try (BufferedReader br = new BufferedReader(new FileReader("/Users/charlespalmer/Downloads/RedditNews.csv"))) {
             while ((line = br.readLine()) != null) {
 
                 String[] headline = line.split(",");
                 if (headline.length > 1) {
-                    if(headline[1].contains(phrase) && headline[1].contains(word)){
-                        System.out.println(phrase);
+
+                    if(word.equals("NA")) {
+                        if (headline[1].contains(phrase)) {
+                            count++;
+                        }
+                    } else if(phrase.equals("NA")) {
+                        if (headline[1].contains(word)) {
+                            count++;
+                        }
+                    } else {
+                        if (headline[1].contains(phrase) && headline[1].contains(word)) {
+                            count++;
+                        }
                     }
                 }
             }
         } catch (Exception e){
             e.printStackTrace();
         }
-        phrase.contains(word);
-        return 0;
+
+        return count;
     }
 
 }
