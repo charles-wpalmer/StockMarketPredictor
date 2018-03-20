@@ -9,10 +9,19 @@ import java.util.Arrays;
 
 class Handler{
 
+    /**
+     * Class SentimentAnalysis
+     */
     private SentimentAnalysis SA;
 
+    /**
+     * Class AlphaVantage
+     */
     private AlphaVantage AV;
 
+    /**
+     * Method to handle/generate the training data
+     */
     public void handleTrainingData(){
         // TODO;
         //  -   Get training data for the model (.arff file)
@@ -20,6 +29,10 @@ class Handler{
         //  -
     }
 
+    /**
+     * Method to prepare
+     * @throws Exception
+     */
     public void prepareData() throws Exception {
         // TODO;
         //  -   Start to build the object, and add in the features
@@ -36,9 +49,15 @@ class Handler{
         }
 
         String[] prices = this.AV.getDailyPrices();
+
+        System.out.println(Arrays.toString(prices));
         System.out.println(Arrays.toString(headlineSentiments));
     }
 
+    /**
+     * Method to start running the program
+     * @throws Exception
+     */
     public void run() throws Exception {
         this.SA = new SentimentAnalysis();
         this.AV = new AlphaVantage("DJIA");

@@ -262,6 +262,7 @@ public class SentimentAnalysis {
                 .tokenizer(headline.toCharArray(), 0, headline.length())
                 .tokenize();
 
+        System.out.println(headline);
         List<String> tokenList = Arrays.asList(tokens);
         Tagging<String> tagging = posTagger.tag(tokenList);
 
@@ -281,6 +282,7 @@ public class SentimentAnalysis {
 
         }
 
+        System.out.println(SO/count);
         return SO/count;
     }
 
@@ -306,14 +308,12 @@ public class SentimentAnalysis {
      * @return double
      */
     private double calculatePMI(String phrase, String word){
-        double PMI = 0.0;
-        double combinedProb, probPhrase, probWord = 0;
+        double PMI;
+        double combinedProb, probPhrase, probWord;
 
         combinedProb = searchCorpus(phrase, word);
         probPhrase = searchCorpus(phrase, "NA");
         probWord = searchCorpus("NA", word);
-
-        //System.out.println("cb: " + combinedProb + " ph: " + probPhrase + " wrd: " + probWord);
 
         if(probPhrase == 0){
             probPhrase = 0.001;
@@ -329,10 +329,17 @@ public class SentimentAnalysis {
 
         PMI = combinedProb / (probPhrase * probWord);
         PMI = Math.log(PMI) / Math.log(2);
-        //System.out.println(PMI);
+
         return PMI;
     }
 
+    /**
+     * Search the corpus for a given phrase and word, phrase or word
+     *
+     * @param phrase
+     * @param word
+     * @return int
+     */
     private int searchCorpus(String phrase, String word){
 
         String line = "";
