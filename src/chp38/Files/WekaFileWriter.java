@@ -44,6 +44,9 @@ public class WekaFileWriter {
 
         FileWriter writer = new FileWriter(file);
 
+        writer.write("@relation myrelation");
+        writer.write(System.getProperty( "line.separator" ));
+
         for(String attribute : attributes){
             writer.write("@attribute " + attribute + " numeric");
             writer.write(System.getProperty( "line.separator" ));
@@ -58,6 +61,9 @@ public class WekaFileWriter {
             writer.write("@attribute class " + classes);
             writer.write(System.getProperty( "line.separator" ));
         }
+
+        writer.write(System.getProperty( "line.separator" ));
+        writer.write("@data");
 
         writer.write(System.getProperty( "line.separator" ));
         writer.write(generateObject(data));
