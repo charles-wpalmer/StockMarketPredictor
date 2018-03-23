@@ -262,7 +262,7 @@ public class SentimentAnalysis {
                 .tokenizer(headline.toCharArray(), 0, headline.length())
                 .tokenize();
 
-        System.out.println(headline);
+        //System.out.println(headline);
         List<String> tokenList = Arrays.asList(tokens);
         Tagging<String> tagging = posTagger.tag(tokenList);
 
@@ -282,7 +282,7 @@ public class SentimentAnalysis {
 
         }
 
-        System.out.println(SO/count);
+        //System.out.println(SO/count);
         return SO/count;
     }
 
