@@ -2,10 +2,10 @@ package chp38;
 
 import chp38.APIHandler.AlphaVantage;
 import chp38.APIHandler.RedditApi;
+import chp38.Files.WekaFileWriter;
 import chp38.SentimentAnalysis.SentimentAnalysis;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 class Handler{
 
@@ -42,16 +42,18 @@ class Handler{
         RedditApi Reddit = new RedditApi();
 
         ArrayList<String> headlines = Reddit.getHeadlines();
-        double[] headlineSentiments = new double[25];
+        ArrayList<Double> headlineSentiments = new ArrayList();
 
         for(int c = 0; c < 25; c++){
-            headlineSentiments[c] = this.SA.detectSentiment(headlines.get(c));
+            headlineSentiments.add(this.SA.detectSentiment(headlines.get(c)));
         }
 
-        String[] prices = this.AV.getDailyPrices();
+        ArrayList<Object> prices = this.AV.getDailyPrices();
 
-        System.out.println(Arrays.toString(prices));
-        System.out.println(Arrays.toString(headlineSentiments));
+        prices.addAll(headlineSentiments);
+        prices.add("increase");
+
+        WekaFileWriter.generateTestArfFile("Test.arf", prices, true);
     }
 
     /**
