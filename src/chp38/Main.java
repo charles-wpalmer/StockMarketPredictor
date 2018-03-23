@@ -51,9 +51,9 @@ class Handler{
         ArrayList<Object> prices = this.AV.getDailyPrices();
 
         prices.addAll(headlineSentiments);
-        prices.add("increase");
+        prices.add("decrease");
 
-        WekaFileWriter.generateTestArfFile("Test.arf", prices, true);
+        WekaFileWriter.generateTestArfFile("Test.arff", prices, true);
     }
 
     /**
