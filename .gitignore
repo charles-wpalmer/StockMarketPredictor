@@ -1,5 +1,6 @@
 .idea/workspace.xml
 Test.arf
+*.arff
 .idea/tasks.xml
 *.iws
 *.iml
