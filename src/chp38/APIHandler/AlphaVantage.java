@@ -44,7 +44,7 @@ public class AlphaVantage {
      * Get the past daily prices for a given comodity
      *
      */
-    public String[] getDailyPrices() throws IOException, ParseException {
+    public ArrayList<Object> getDailyPrices() throws IOException, ParseException {
         JSONParser parser = new JSONParser();
 
         Object object = parser.parse(this.sendRequest());
@@ -57,12 +57,12 @@ public class AlphaVantage {
         object = parser.parse(jsonObject.get("2018-03-15").toString());
         jsonObject = (JSONObject) object;
 
-        String[] dailyPrices = new String[5];
-        dailyPrices[0] = jsonObject.get("1. open").toString();
-        dailyPrices[1] = jsonObject.get("2. high").toString();
-        dailyPrices[2] = jsonObject.get("3. low").toString();
-        dailyPrices[3] = jsonObject.get("4. close").toString();
-        dailyPrices[4] = jsonObject.get("5. volume").toString();
+        ArrayList dailyPrices = new ArrayList();
+        dailyPrices.add(jsonObject.get("1. open").toString());
+        dailyPrices.add(jsonObject.get("2. high").toString());
+        dailyPrices.add(jsonObject.get("3. low").toString());
+        dailyPrices.add(jsonObject.get("4. close").toString());
+        dailyPrices.add(jsonObject.get("5. volume").toString());
 
         return dailyPrices;
     }
