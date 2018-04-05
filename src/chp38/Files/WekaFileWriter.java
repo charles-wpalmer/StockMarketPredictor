@@ -26,7 +26,7 @@ public class WekaFileWriter {
     /**
      * The classes used for each object, either increase or decrease
      */
-    private static String classes = "{increase,decrease}";
+    private static String classes = "{decrease,increase}";
 
     /**
      * Method to generate a test .arf file to be used by WEKA. Passed an ArrayList of
@@ -88,7 +88,6 @@ public class WekaFileWriter {
 
         object.deleteCharAt(object.length()-1);
 
-        System.out.println(object.toString());
         return object.toString();
     }
 }
