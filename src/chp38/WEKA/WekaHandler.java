@@ -15,13 +15,40 @@ public class WekaHandler {
     private NaiveBayes tree;
 
     /**
-     * Method to build the J48 tree with a given training dataset
+     * Array to hold the two classifications.
+     */
+    private static String[] arrayClasses = {"decrease", "increase"};
+
+    /**
+     * Method to load the attributes from the generated file.
      *
      * @throws Exception
      */
-    public void buildModel() throws Exception {
+    public void loadAttributes() throws Exception {
         Instances data = this.getInstances("labelled.arff");
 
+        this.buildModel(data);
+    }
+
+    /**
+     * Method to load the attributes from the user given file.
+     *
+     * @throws Exception
+     */
+    public void loadAttributes(String file) throws Exception {
+
+        Instances data = this.getInstances(file);
+
+        this.buildModel(data);
+    }
+
+    /**
+     * Method to build the model with a given training dataset
+     *
+     * @param data
+     * @throws Exception
+     */
+    private void buildModel(Instances data) throws Exception {
         data.setClassIndex(data.numAttributes() - 1);
 
         String[] options = new String[1];
@@ -29,7 +56,6 @@ public class WekaHandler {
         this.tree = new NaiveBayes();
         tree.setOptions(options);
         tree.buildClassifier(data);
-
     }
 
     /**
@@ -38,16 +64,18 @@ public class WekaHandler {
      *
      * @throws Exception
      */
-    public void classifyData() throws Exception {
+    public String classifyData() throws Exception {
         Instances test = this.getInstances("unlabelled.arff");
+        Double clsLabel = 0.0;
 
         test.setClassIndex(test.numAttributes() - 1);
 
         for (int i = 0; i < test.numInstances(); i++) {
-            double clsLabel = this.tree.classifyInstance(test.instance(i));
+            clsLabel = this.tree.classifyInstance(test.instance(i));
             test.instance(i).setClassValue(clsLabel);
-            System.out.println(clsLabel);
         }
+
+        return this.arrayClasses[(int)Math.round(clsLabel)];
     }
 
     /**
