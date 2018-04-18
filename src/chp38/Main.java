@@ -2,14 +2,21 @@ package chp38;
 
 import chp38.APIHandler.ServerAPI;
 import chp38.Core.*;
+import chp38.Files.CSVFileReader;
+import chp38.SentimentAnalysis.SentimentAnalysis;
+
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        //AppHandler han = new AppHandler();
+        Scanner reader = new Scanner(System.in);
 
-        //han.run();
-        ServerAPI server = new ServerAPI();
+        System.out.println("Please enter the short name of the Commodity/market you wish to predict...");
+        String comodity = reader.nextLine();
 
-        server.sendMarketPrediction();
+        AppHandler han = new AppHandler(comodity);
+
+        han.run();
     }
 }

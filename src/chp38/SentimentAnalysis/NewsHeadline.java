@@ -2,27 +2,28 @@ package chp38.SentimentAnalysis;
 
 public class NewsHeadline {
 
-    String headline;
-    String classification;
+    /**
+     * VString to hold the name of the market.
+     */
+    private String market;
 
-    public NewsHeadline(String text, String classification){
-        this.headline = text;
-        this.classification = classification;
+    public NewsHeadline(String market){
+        this.market = market;
     }
 
-    public String getHeadline() {
-        return headline;
+    /**
+     * Get the market being dealt with
+     * @return market
+     */
+    public String getMarket() {
+        return market;
     }
 
-    public void setHeadline(String headline) {
-        this.headline = headline;
-    }
-
-    public String getClassification() {
-        return classification;
-    }
-
-    public void setClassification(String classification) {
-        this.classification = classification;
+    /**
+     * Set the market being dealt with
+     * @param market
+     */
+    public void setMarket(String market) {
+        this.market = market;
     }
 }
