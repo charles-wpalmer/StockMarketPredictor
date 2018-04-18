@@ -16,13 +16,11 @@ import com.aliasi.classify.DynamicLMClassifier;
 
 import com.aliasi.lm.NGramProcessLM;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import chp38.Files.CSVFileReader;
 
 /**
  * Class to handle communication with Lingpipe, and analyse
@@ -32,189 +30,28 @@ import java.util.List;
  */
 public class SentimentAnalysis {
 
-    File mPolarityDir;
-    String[] mCategories;
-    ArrayList<NewsHeadline> testFiles;
-    DynamicLMClassifier<NGramProcessLM> mClassifier;
+    /**
+     * ArrayList to hold the corpus, to save having to keep reading from file
+     */
+    ArrayList<String> corpus = new ArrayList<String>();
 
+    /**
+     * Stores the HmmDecoder for POS-Tagging
+     */
     HmmDecoder posTagger;
+
+    /**
+     * Tokenizer, to tokenize the headline
+     */
     TokenizerFactory tokenizerFactory;
+
+    /**
+     * For the chunking of the tokens
+     */
     HeadlineChunker chunker;
 
     public SentimentAnalysis() {
-
-    }
-
-    /**
-     * Allows for CV. If the fold is 9 (i.e file is 900+) then use it as test
-     * Data.
-     *
-     * @param file
-     * @return
-     */
-    boolean isTrainingFile(File file) {
-        return file.getName().charAt(2) != '9';  // test on fold 9
-    }
-
-    /**
-     * Class to handle news headlines from multiple
-     * files, train the model, and evaluate the test
-     * data.
-     *
-     * @param folder
-     * @throws IOException
-     */
-    public void handleFromFolder(String folder) throws IOException {
-        mPolarityDir = new File(folder,"news_headlines");
-        mCategories = mPolarityDir.list();
-
-        for (int i = 0; i < mCategories.length; ++i) {
-            File file = new File(mPolarityDir, mCategories[i]);
-            File[] allFiles = file.listFiles();
-
-            Classification classification = new Classification(mCategories[i]);
-
-
-            for (int j = 0; j < allFiles.length; ++j) {
-                File trainFile = allFiles[j];
-                String headline = Files.readFromFile(trainFile, "ISO-8859-1");
-
-                if (isTrainingFile(trainFile)) {
-                    train(headline, classification);
-                } else {
-                    // Build test data with the nth fold
-                    testFiles.add(new NewsHeadline(headline, mCategories[i]));
-                }
-            }
-        }
-        evaluateTraining();
-    }
-
-    /**
-     * Class to handle news headlines from a single (csv)
-     * file, and then train the model
-     *
-     * Todo:
-     *  - Need to do cross validation - how?
-     * @param folder
-     * @throws IOException
-     */
-    public void handleFromFile(String folder) throws IOException {
-        mPolarityDir = new File(folder,"news_headlines");
-        mCategories = mPolarityDir.list();
-        String line;
-
-        for (int i = 0; i < mCategories.length; ++i) {
-            Classification classification = new Classification(mCategories[i]);
-            String csvFile = folder + "news_headlines/" + mCategories[i] + "/" + mCategories[i] + ".csv";
-
-            try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-
-                while ((line = br.readLine()) != null) {
-
-                    String[] headline = line.split(",");
-
-                    train(headline[1], classification);
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * Generate a list of test news headlines, to test the model
-     *
-     * @param data
-     */
-    public void prepareTrainingFiles(ArrayList data){
-        for(int i=0; i < data.size(); i++){
-
-            NewsHeadline temp = new NewsHeadline(data.get(i).toString(), "");
-
-            this.testFiles.add(temp);
-        }
-    }
-
-    /**
-     * Method to add a single piece of data to the test dataset.
-     * To allow recursive building of the data to be external from
-     * this file.
-     *
-     * @param headline
-     */
-    public void addTestData(String headline){
-        NewsHeadline newNews = new NewsHeadline(headline, "");
-
-        this.testFiles.add(newNews);
-    }
-
-    /**
-     * Method to add a single piece of data to the training model.
-     * To allow recursive building of the model be external from this
-     * file.
-     *
-     * @param headline
-     * @param category
-     */
-    public void addToTraining(String headline, String category){
-        Classification classification = new Classification(category);
-
-        train(headline, classification);
-    }
-
-    /**
-     * Evaluate using CV so we can check if the model has got it
-     * correct
-     */
-    void evaluateTraining(){
-        int numCorrect = 0;
-
-        for (int i=0; i < this.testFiles.size(); i++) {
-            NewsHeadline temp = this.testFiles.get(i);
-
-            Classification classification
-                    = mClassifier.classify((CharSequence) temp.getHeadline());
-
-            if (classification.bestCategory().equals(temp.getClassification())) {
-                ++numCorrect;
-            }
-
-        }
-
-        System.out.println("  # Correct=" + numCorrect);
-        System.out.println("  % Correct="
-                + ((double)numCorrect)/(double)200);
-    }
-
-    /**
-     * Evaluate a whole new news headline that we 'don't know' the classification of
-     * And display what is was classified as
-     */
-    public void evaluateTest(){
-        for (int i=0; i < this.testFiles.size(); i++) {
-            NewsHeadline temp = this.testFiles.get(i);
-
-            Classification classification
-                    = mClassifier.classify((CharSequence) temp.getHeadline());
-
-            System.out.println(temp.getHeadline() + "------" + classification.bestCategory());
-
-        }
-    }
-
-    /**
-     * Add news headlines to the model
-     *
-     * @param headline
-     * @param classification
-     */
-    void train(String headline, Classification classification){
-        Classified<CharSequence> classified
-                = new Classified<CharSequence>((CharSequence) headline, classification);
-
-        mClassifier.handle(classified);
+        this.corpus();
     }
 
     /**
@@ -262,7 +99,6 @@ public class SentimentAnalysis {
                 .tokenizer(headline.toCharArray(), 0, headline.length())
                 .tokenize();
 
-        //System.out.println(headline);
         List<String> tokenList = Arrays.asList(tokens);
         Tagging<String> tagging = posTagger.tag(tokenList);
 
@@ -282,7 +118,6 @@ public class SentimentAnalysis {
 
         }
 
-        //System.out.println(SO/count);
         return SO/count;
     }
 
@@ -342,35 +177,63 @@ public class SentimentAnalysis {
      */
     private int searchCorpus(String phrase, String word){
 
-        String line = "";
         int count = 0;
 
-        try (BufferedReader br = new BufferedReader(new FileReader("/Users/charlespalmer/Downloads/RedditNews.csv"))) {
-            while ((line = br.readLine()) != null) {
+        for(String headline : this.corpus) {
 
-                String[] headline = line.split(",");
-                if (headline.length > 1) {
-
-                    if(word.equals("NA")) {
-                        if (headline[1].contains(phrase)) {
-                            count++;
-                        }
-                    } else if(phrase.equals("NA")) {
-                        if (headline[1].contains(word)) {
-                            count++;
-                        }
-                    } else {
-                        if (headline[1].contains(phrase) && headline[1].contains(word)) {
-                            count++;
-                        }
-                    }
+            if (word.equals("NA")) {
+                if (headline.contains(phrase)) {
+                    count++;
+                }
+            } else if (phrase.equals("NA")) {
+                if (headline.contains(word)) {
+                    count++;
+                }
+            } else {
+                if (headline.contains(phrase) && headline.contains(word)) {
+                    count++;
                 }
             }
-        } catch (Exception e){
+
+        }
+        return count;
+    }
+
+    /**
+     * If the Corpus hasn't been loaded in locally, then call getCorpus
+     * to load it in. Else, return the corpus.
+     *
+     * @return corpus
+     */
+    private void corpus(){
+        if(this.corpus.size() == 0){
+            this.corpus = this.getCorpus();
+        }
+    }
+
+    /**
+     * Retrieve the headlines for the Corpus from the file, and store them
+     * in an ArrayList.
+     *
+     * @return headlines
+     */
+    private ArrayList<String> getCorpus(){
+        String line = "";
+        ArrayList<String> headlines = new ArrayList<String>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader("./RedditNews.csv"))) {
+            while ((line = br.readLine()) != null) {
+                String[] data = CSVFileReader.splitLine(line);
+
+                headlines.add(data[1]);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return count;
+        return headlines;
     }
 
 }
