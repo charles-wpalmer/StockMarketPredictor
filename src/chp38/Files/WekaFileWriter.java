@@ -37,7 +37,7 @@ public class WekaFileWriter {
      * @param name name of the file
      * @param data data to generate the file with
      */
-    public static void generateTestArfFile(String name, ArrayList data, boolean isTrain) throws IOException {
+    public static void generateTestArfFile(String name, ArrayList data) throws IOException {
         File file = new File("./" + name);
 
         file.createNewFile();
@@ -57,10 +57,8 @@ public class WekaFileWriter {
             writer.write(System.getProperty( "line.separator" ));
         }
 
-        if(isTrain){
-            writer.write("@attribute class " + classes);
-            writer.write(System.getProperty( "line.separator" ));
-        }
+        writer.write("@attribute class " + classes);
+        writer.write(System.getProperty( "line.separator" ));
 
         writer.write(System.getProperty( "line.separator" ));
         writer.write("@data");
@@ -72,13 +70,56 @@ public class WekaFileWriter {
     }
 
     /**
+     * Method to build the training arff file given a lis of the string objects.
+     *
+     * @param name
+     * @param objects
+     */
+    public static void generateTrainingArfFile(String name, ArrayList<String> objects) throws IOException {
+
+        File file = new File("./" + name);
+
+        file.createNewFile();
+
+        FileWriter writer = new FileWriter(file);
+
+        writer.write("@relation myrelation");
+        writer.write(System.getProperty( "line.separator" ));
+
+        for(String attribute : attributes){
+            writer.write("@attribute " + attribute + " numeric");
+            writer.write(System.getProperty( "line.separator" ));
+        }
+
+        for(int i=1; i <= headlineCount; i++){
+            writer.write("@attribute headline" + i  + " numeric");
+            writer.write(System.getProperty( "line.separator" ));
+        }
+
+        writer.write("@attribute class " + classes);
+        writer.write(System.getProperty( "line.separator" ));
+
+        writer.write(System.getProperty( "line.separator" ));
+        writer.write("@data");
+
+        writer.write(System.getProperty( "line.separator" ));
+
+        for(String object : objects){
+            writer.write(object);
+            writer.write(System.getProperty( "line.separator" ));
+        }
+
+        writer.close();
+    }
+
+    /**
      * Method to build a line, relating to a sinlge object for the
      * .arf file
      *
      * @param data the data to be converted ti string
      * @return String the object
      */
-    private static String generateObject(ArrayList data){
+    public static String generateObject(ArrayList data){
         StringBuilder object = new StringBuilder();
 
         for (Object value : data) {
