@@ -187,8 +187,9 @@ public class AppHandler{
 
         String prediction = this.weka.classifyData();
 
-        System.out.println(prediction);
-        ServerAPI.sendMarketPrediction(prediction, this.Comodity);
+        int predictionId = ServerAPI.sendMarketPrediction(prediction, this.Comodity);
+
+        ServerAPI.sendNewsHeadlines(predictionId, this.NewsHeadlines);
 
     }
 
