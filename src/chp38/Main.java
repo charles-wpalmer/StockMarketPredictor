@@ -1,11 +1,7 @@
 package chp38;
 
-import chp38.APIHandler.ServerAPI;
-import chp38.Core.*;
-import chp38.Files.CSVFileReader;
-import chp38.SentimentAnalysis.SentimentAnalysis;
+import chp38.Core.AppHandler;
 
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
