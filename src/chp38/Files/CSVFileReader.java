@@ -22,7 +22,7 @@ public class CSVFileReader {
         ArrayList<Object> dailyInformation = new ArrayList<>();
         ArrayList<String> headlines = new ArrayList<>();
         ArrayList<String> prices = new ArrayList<>();
-        
+
         try (BufferedReader br = new BufferedReader(new java.io.FileReader(file))) {
 
             while ((line = br.readLine()) != null) {
