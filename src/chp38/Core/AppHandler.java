@@ -50,9 +50,9 @@ public class AppHandler{
     private String testFile = "./unlabelled.arff";
 
     /**
-     * List of news headlines
+     * Variable to hold the DailyInformation class
      */
-    private ArrayList<String> NewsHeadlines;
+    private DailyInformation dailyInfo;
 
     public AppHandler(String comodity){
         this.Comodity = comodity;
@@ -60,6 +60,7 @@ public class AppHandler{
         this.weka = new WekaHandler();
         this.SA = new SentimentAnalysis();
         this.AV = new AlphaVantage(this.Comodity);
+        this.dailyInfo = new DailyInformation();
     }
 
     /**
@@ -80,9 +81,9 @@ public class AppHandler{
     private void prepareData() throws Exception {
         RedditApi Reddit = new RedditApi();
 
-        this.NewsHeadlines = Reddit.getHeadlines();
+        this.dailyInfo.setHeadlines(Reddit.getHeadlines());
 
-        this.buildArffFile(this.NewsHeadlines);
+        this.buildArffFile(this.dailyInfo.getHeadlines());
     }
 
     /**
@@ -93,9 +94,9 @@ public class AppHandler{
      */
     private void prepareData(String file) throws Exception {
 
-        this.NewsHeadlines = CSVFileReader.readUserNewsFile(file);
+        this.dailyInfo.setHeadlines(CSVFileReader.readUserNewsFile(file));
 
-        this.buildArffFile(this.NewsHeadlines);
+        this.buildArffFile(this.dailyInfo.getHeadlines());
 
     }
 
@@ -108,13 +109,16 @@ public class AppHandler{
      * @throws ParseException
      */
     private void buildArffFile(ArrayList<String> headlines) throws IOException, ParseException {
-        ArrayList<Double> headlineSentiments = new ArrayList();
+        ArrayList<String> headlineSentiments = new ArrayList();
 
         for(int c = 0; c < 25; c++){
-            headlineSentiments.add(this.SA.detectSentiment(headlines.get(c)));
+            headlineSentiments.add(String.valueOf(this.SA.detectSentiment(headlines.get(c))));
         }
 
-        ArrayList<Object> prices = this.AV.getDailyPrices();
+        this.dailyInfo.setHeadlineSentiments(headlineSentiments);
+        this.dailyInfo.setPriceList(this.AV.getDailyPrices());
+
+        ArrayList<String> prices = this.dailyInfo.getPriceList();
 
         prices.addAll(headlineSentiments);
         prices.add("decrease");
@@ -187,9 +191,10 @@ public class AppHandler{
 
         String prediction = this.weka.classifyData();
 
-        int predictionId = ServerAPI.sendMarketPrediction(prediction, this.Comodity);
+        int predictionId = ServerAPI.sendMarketPrediction(prediction, this.Comodity,
+                this.dailyInfo.getDailyHigh(), this.dailyInfo.getDailyLow());
 
-        ServerAPI.sendNewsHeadlines(predictionId, this.NewsHeadlines);
+        ServerAPI.sendNewsHeadlines(predictionId, this.dailyInfo.getHeadlines(), this.dailyInfo.getHeadlineSentiments());
 
     }
 

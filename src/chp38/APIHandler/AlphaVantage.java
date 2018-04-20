@@ -44,7 +44,7 @@ public class AlphaVantage {
      * Get the past daily prices for a given comodity
      *
      */
-    public ArrayList<Object> getDailyPrices() throws IOException, ParseException {
+    public ArrayList<String> getDailyPrices() throws IOException, ParseException {
         JSONParser parser = new JSONParser();
 
         Object object = parser.parse(this.sendRequest());

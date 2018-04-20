@@ -34,7 +34,7 @@ public class ServerAPI {
      *
      * @throws IOException
      */
-    public static int sendMarketPrediction(String prediction, String commodity) throws IOException {
+    public static int sendMarketPrediction(String prediction, String commodity, Double high, Double low) throws IOException {
         URL serverUrl =
                 new URL(ServerAPI.predictionRequestURL);
         HttpURLConnection urlConnection = (HttpURLConnection)serverUrl.openConnection();
@@ -44,8 +44,8 @@ public class ServerAPI {
 
         BufferedWriter httpRequestBodyWriter =
                 new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
-        httpRequestBodyWriter.write("market_name="+commodity+"&date=" + ServerAPI.getDate() +
-                "&prediction="+prediction+"&prev_day_high=100.4&prev_day_low=98.4");
+        httpRequestBodyWriter.write("market_name=" + commodity + "&date=" + ServerAPI.getDate() +
+                "&prediction="+prediction+"&prev_day_high=" + high + "&prev_day_low=" + low);
 
         httpRequestBodyWriter.close();
 
@@ -66,7 +66,8 @@ public class ServerAPI {
      *
      * @throws IOException
      */
-    public static void sendNewsHeadlines(int predictionId, ArrayList<String> headlines) throws IOException {
+    public static void sendNewsHeadlines(int predictionId, ArrayList<String> headlines,
+                                         ArrayList<String> sentiments) throws IOException {
         URL serverUrl =
                 new URL(ServerAPI.newsRequestURL);
         HttpURLConnection urlConnection = (HttpURLConnection)serverUrl.openConnection();
@@ -79,7 +80,8 @@ public class ServerAPI {
 
 
         String headlineString = ServerAPI.generateHeadlineString(headlines);
-        String str = "date=" + ServerAPI.getDate() + "&prediction_id="+predictionId + headlineString;
+        String sentimentString = ServerAPI.generateHeadlineSentimentString(sentiments);
+        String str = "date=" + ServerAPI.getDate() + "&prediction_id=" + predictionId + sentimentString + headlineString;
 
         httpRequestBodyWriter.write(str);
         httpRequestBodyWriter.close();
@@ -109,6 +111,21 @@ public class ServerAPI {
 
         for(String headline : headlines){
             string.append("&news_headlines["+count+"]=" + headline);
+
+            count++;
+        }
+
+        string.deleteCharAt(string.length()-1);
+
+        return string.toString();
+    }
+
+    public static String generateHeadlineSentimentString(ArrayList<String> sentiments){
+        StringBuilder string = new StringBuilder();
+        int count = 0;
+
+        for(String sentiment : sentiments){
+            string.append("&headline_sentiments["+count+"]=" + sentiment);
 
             count++;
         }
