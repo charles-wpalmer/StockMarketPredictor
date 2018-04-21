@@ -1,4 +1,5 @@
 package chp38.SentimentAnalysis;
+import chp38.Files.CSVFileReader;
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;
 import com.aliasi.hmm.HiddenMarkovModel;
@@ -8,19 +9,11 @@ import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.AbstractExternalizable;
 import com.aliasi.util.FastCache;
-import com.aliasi.util.Files;
-
-import com.aliasi.classify.Classification;
-import com.aliasi.classify.Classified;
-import com.aliasi.classify.DynamicLMClassifier;
-
-import com.aliasi.lm.NGramProcessLM;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import chp38.Files.CSVFileReader;
 
 /**
  * Class to handle communication with Lingpipe, and analyse
@@ -33,22 +26,22 @@ public class SentimentAnalysis {
     /**
      * ArrayList to hold the corpus, to save having to keep reading from file
      */
-    ArrayList<String> corpus = new ArrayList<String>();
+    private ArrayList<String> corpus = new ArrayList<String>();
 
     /**
      * Stores the HmmDecoder for POS-Tagging
      */
-    HmmDecoder posTagger;
+    private HmmDecoder posTagger;
 
     /**
      * Tokenizer, to tokenize the headline
      */
-    TokenizerFactory tokenizerFactory;
+    private TokenizerFactory tokenizerFactory;
 
     /**
      * For the chunking of the tokens
      */
-    HeadlineChunker chunker;
+    private HeadlineChunker chunker;
 
     public SentimentAnalysis() {
         this.corpus();
@@ -58,7 +51,7 @@ public class SentimentAnalysis {
      * Method to load the Hmm model for the POS tagger, and chunker
      */
     public void loadHmmModel(){
-        String dir = "/Users/charlespalmer/Downloads/POSTagging/train-brown";
+        String dir = "./train-brown";
         File hmmFile = new File(dir);
         int cacheSize = Integer.valueOf(256);
         FastCache<String,double[]> cache = new FastCache<String,double[]>(cacheSize);
@@ -219,7 +212,7 @@ public class SentimentAnalysis {
      */
     private ArrayList<String> getCorpus(){
         String line = "";
-        ArrayList<String> headlines = new ArrayList<String>();
+        ArrayList<String> headlines = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader("./RedditNews.csv"))) {
             while ((line = br.readLine()) != null) {

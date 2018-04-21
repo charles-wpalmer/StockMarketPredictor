@@ -51,6 +51,12 @@ public class AlphaVantage {
 
         JSONObject jsonObject = (JSONObject) object;
 
+
+        if(jsonObject.toString().contains("Error Message")) {
+            System.out.println("Incorrect Commodity Entered");
+            System.exit(0);
+        }
+
         object = parser.parse(jsonObject.get("Time Series (Daily)").toString());
         jsonObject = (JSONObject) object;
 
@@ -74,7 +80,7 @@ public class AlphaVantage {
      * @throws IOException
      */
     private String sendRequest() throws IOException {
-        String requestURL = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+this.commodity+"&apikey=YC8VVZQTBQZPJG27";
+        String requestURL = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+this.commodity+"&apikey=" + this.APIKey;
 
         URL obj = new URL(requestURL);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();

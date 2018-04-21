@@ -1,6 +1,7 @@
 package chp38.WEKA;
 
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
 import java.io.BufferedReader;
@@ -12,23 +13,12 @@ public class WekaHandler {
     /**
      * Variable to hold the J48 tree
      */
-    private NaiveBayes tree;
+    private J48 tree;
 
     /**
      * Array to hold the two classifications.
      */
     private static String[] arrayClasses = {"decrease", "increase"};
-
-    /**
-     * Method to load the attributes from the generated file.
-     *
-     * @throws Exception
-     */
-    public void loadAttributes() throws Exception {
-        Instances data = this.getInstances("labelled.arff");
-
-        this.buildModel(data);
-    }
 
     /**
      * Method to load the attributes from the user given file.
@@ -53,7 +43,7 @@ public class WekaHandler {
 
         String[] options = new String[1];
         options[0] = "";
-        this.tree = new NaiveBayes();
+        this.tree = new J48();
         tree.setOptions(options);
         tree.buildClassifier(data);
     }
@@ -64,8 +54,8 @@ public class WekaHandler {
      *
      * @throws Exception
      */
-    public String classifyData() throws Exception {
-        Instances test = this.getInstances("unlabelled.arff");
+    public String classifyData(String file) throws Exception {
+        Instances test = this.getInstances(file);
         Double clsLabel = 0.0;
 
         test.setClassIndex(test.numAttributes() - 1);

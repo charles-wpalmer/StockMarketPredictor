@@ -17,7 +17,7 @@ public class AppHandler{
     /**
      * Variable to hold the name of the Comodity/market to predict
      */
-    private String Comodity;
+    private String Commodity;
 
     /**
      * Class SentimentAnalysis
@@ -55,11 +55,11 @@ public class AppHandler{
     private DailyInformation dailyInfo;
 
     public AppHandler(String comodity){
-        this.Comodity = comodity;
+        this.Commodity = comodity;
 
         this.weka = new WekaHandler();
         this.SA = new SentimentAnalysis();
-        this.AV = new AlphaVantage(this.Comodity);
+        this.AV = new AlphaVantage(this.Commodity);
         this.dailyInfo = new DailyInformation();
     }
 
@@ -154,28 +154,21 @@ public class AppHandler{
             this.trainingFile = reader.nextLine();
         }
 
-        this.handleInputs(news, training, newsSource);
+        this.handleInputs(news, newsSource);
     }
 
     /**
      * Handle the user inputs from the menu, and run the appropriate methods.
      *
      * @param news
-     * @param training
      * @param newsFile
      * @throws Exception
      */
-    private void handleInputs(int news, int training, String newsFile) throws Exception {
+    private void handleInputs(int news, String newsFile) throws Exception {
         if(news == 1){
             prepareData(newsFile);
         } else {
             prepareData();
-        }
-
-        if(training == 1){
-            this.weka.loadAttributes(this.trainingFile);
-        } else {
-            this.weka.loadAttributes(this.trainingFile);
         }
     }
 
@@ -189,13 +182,36 @@ public class AppHandler{
     public void run() throws Exception {
         this.displayMenu();
 
-        String prediction = this.weka.classifyData();
+        String prediction = this.runWeka();
 
-        int predictionId = ServerAPI.sendMarketPrediction(prediction, this.Comodity,
+        this.handleOutput(prediction);
+    }
+
+    /**
+     *
+     * @param prediction
+     * @throws IOException
+     */
+    private void handleOutput(String prediction) throws IOException {
+        int predictionId = ServerAPI.sendMarketPrediction(prediction, this.Commodity,
                 this.dailyInfo.getDailyHigh(), this.dailyInfo.getDailyLow());
 
         ServerAPI.sendNewsHeadlines(predictionId, this.dailyInfo.getHeadlines(), this.dailyInfo.getHeadlineSentiments());
 
+        System.out.println("Prediction for " + this.Commodity + " is: " + prediction);
     }
 
+    /**
+     * Method to load the training data into Weka and classify the new data.
+     *
+     * @return String Prediction
+     * @throws Exception
+     */
+    private String runWeka() throws Exception {
+        this.weka.loadAttributes(this.trainingFile);
+
+        String prediction = this.weka.classifyData(this.testFile);
+
+        return prediction;
+    }
 }
