@@ -1,5 +1,5 @@
-package chp38.SentimentAnalysis;
-import chp38.Files.CSVFileReader;
+package chp38.ML;
+import chp38.Files.FileReader;
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;
 import com.aliasi.hmm.HiddenMarkovModel;
@@ -26,7 +26,7 @@ public class SentimentAnalysis {
     /**
      * ArrayList to hold the corpus, to save having to keep reading from file
      */
-    private ArrayList<String> corpus = new ArrayList<String>();
+    private ArrayList<String> corpus = new ArrayList<>();
 
     /**
      * Stores the HmmDecoder for POS-Tagging
@@ -79,8 +79,8 @@ public class SentimentAnalysis {
     /**
      * Start the process of learning the sentiment of a news headline
      *
-     * @param headline
-     * @return
+     * @param headline the headline to detect the sentiment of
+     * @return Double the sentiment of the headline
      */
     public double detectSentiment(String headline){
         if(this.chunker == null){
@@ -117,8 +117,8 @@ public class SentimentAnalysis {
     /**
      * Method to calculate the semantic orientation of a key-phrase.
      *
-     * @param phrase
-     * @return double
+     * @param phrase the extracted phrase from the headline
+     * @return double Semantic Orientation of the headline
      */
     private double calculateSO(String phrase){
         double positivePMI = calculatePMI(phrase, "positive");
@@ -131,9 +131,9 @@ public class SentimentAnalysis {
     /**
      * Method to calculate the PMI of a key-phrase extracted from a news headline
      *
-     * @param phrase
-     * @param word
-     * @return double
+     * @param phrase The extracted phrase
+     * @param word The given keyword (Positive/Negative)
+     * @return double The PMI
      */
     private double calculatePMI(String phrase, String word){
         double PMI;
@@ -164,9 +164,9 @@ public class SentimentAnalysis {
     /**
      * Search the corpus for a given phrase and word, phrase or word
      *
-     * @param phrase
-     * @param word
-     * @return int
+     * @param phrase The extracted phrase
+     * @param word The given keyword
+     * @return int hit count in the corpus
      */
     private int searchCorpus(String phrase, String word){
 
@@ -214,9 +214,9 @@ public class SentimentAnalysis {
         String line = "";
         ArrayList<String> headlines = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader("./RedditNews.csv"))) {
+        try (BufferedReader br = new BufferedReader(new java.io.FileReader("./RedditNews.csv"))) {
             while ((line = br.readLine()) != null) {
-                String[] data = CSVFileReader.splitLine(line);
+                String[] data = FileReader.splitLine(line);
 
                 headlines.add(data[1]);
             }

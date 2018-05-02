@@ -1,19 +1,21 @@
 package chp38.Files;
 
-import chp38.SentimentAnalysis.SentimentAnalysis;
+import chp38.ML.SentimentAnalysis;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class CSVFileReader {
+public class FileReader {
 
     /**
      * Read a text file provided by the user with the news headlines to use.
+     * Sets the state of the DailyInformation class (prices, daily high, low, close and open)
      *
      * @param file
-     * @return headlines
+     * @param SA
+     * @return the list of headlines
      */
     public static ArrayList<String> readNewsFile(String file, SentimentAnalysis SA){
 
@@ -27,7 +29,7 @@ public class CSVFileReader {
 
             while ((line = br.readLine()) != null) {
 
-                String[] data = CSVFileReader.splitLine(line);
+                String[] data = FileReader.splitLine(line);
 
                 if (data[0].equals("Date")) {
                     continue;
@@ -36,7 +38,7 @@ public class CSVFileReader {
                 if(date.equals("")){
                     date = data[0];
 
-                    prices = CSVFileReader.getPriceInformation(date);
+                    prices = FileReader.getPriceInformation(date);
 
                     if(prices.size() == 0){
                         continue;
@@ -52,7 +54,7 @@ public class CSVFileReader {
                     }
                 } else {
                     date = data[0];
-                    prices = CSVFileReader.getPriceInformation(date);
+                    prices = FileReader.getPriceInformation(date);
                     if(prices.size() == 0){
                         continue;
                     }
@@ -83,7 +85,7 @@ public class CSVFileReader {
     /**
      * Read a text file provided by the user with the news headlines to use.
      *
-     * @param file
+     * @param file file to read
      * @return headlines
      */
     public static ArrayList<String> readUserNewsFile(String file){
@@ -106,7 +108,7 @@ public class CSVFileReader {
     /**
      * Method to split the line from RedditNews.csv
      *
-     * @param line
+     * @param line the line to be split
      * @return data
      */
     public static String[] splitLine(String line){
@@ -131,7 +133,7 @@ public class CSVFileReader {
     /**
      * Get the price information for a given date.
      *
-     * @param date
+     * @param date the current date being read
      * @return ArrayList
      */
     private static ArrayList<String> getPriceInformation(String date){

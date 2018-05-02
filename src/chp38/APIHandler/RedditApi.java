@@ -30,7 +30,7 @@ public class RedditApi {
     /**
      * Method to generate a list of the headlines from Reddit.
      *
-     * @return ArrayList
+     * @return ArrayList list of headlines
      * @throws Exception
      */
     public ArrayList<String> getHeadlines() throws Exception {
@@ -48,7 +48,7 @@ public class RedditApi {
         JSONArray list = (JSONArray) jsonObject.get("children");
 
         ArrayList<String> headlineList = new ArrayList<>();
-        for(int c = 0; c < list.size(); c++){
+        for(int c = 0; c < 25; c++){
             object = parser.parse(list.get(c).toString());
 
             jsonObject = (JSONObject) object;
@@ -68,7 +68,7 @@ public class RedditApi {
      * Method to actually send the request to Reddit world news, top 25 news headlines of the past
      * 24 hours.
      *
-     * @return String
+     * @return String response
      * @throws Exception
      */
     private String sendRequest() throws Exception {

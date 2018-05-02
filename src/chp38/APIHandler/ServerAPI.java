@@ -18,10 +18,13 @@ import java.util.Scanner;
 public class ServerAPI {
 
     /**
-     * String to hold the API URL
+     * String to hold the API URL for the prediction endpoint
      */
     private static final String predictionRequestURL = "http://markets.development/api/markets";
 
+    /**
+     * String to hold the API URL for the news headlines endpoint
+     */
     private static final String newsRequestURL = "http://markets.development/api/headlines";
 
     /**
@@ -30,8 +33,13 @@ public class ServerAPI {
     private static HttpURLConnection con;
 
     /**
-     * Method to handle sending the prediction information off to the server
+     *  Method to handle sending the prediction information off to the server
      *
+     * @param prediction the prediction made
+     * @param commodity the commodity being analysed
+     * @param high previous daily high
+     * @param low previous daily low
+     * @return int id of the new record created by the server.
      * @throws IOException
      */
     public static int sendMarketPrediction(String prediction, String commodity, Double high, Double low) throws IOException {
@@ -64,6 +72,9 @@ public class ServerAPI {
     /**
      * Method to handle sending the news headlines off to the server
      *
+     * @param predictionId the id of the generated prediction
+     * @param headlines list of headlines
+     * @param sentiments list of sentiments from the headlines
      * @throws IOException
      */
     public static void sendNewsHeadlines(int predictionId, ArrayList<String> headlines,
@@ -103,7 +114,10 @@ public class ServerAPI {
     }
 
     /**
-     * Method to generate the headline string for the request
+     * Method to generate the JSON list of news headlines.
+     *
+     * @param headlines list of the headlines
+     * @return String headline string
      */
     public static String generateHeadlineString(ArrayList<String> headlines){
         StringBuilder string = new StringBuilder();
@@ -120,6 +134,12 @@ public class ServerAPI {
         return string.toString();
     }
 
+    /**
+     * Method to generate the JSON list of news headlines sentiments.
+     *
+     * @param sentiments list of the sentiments
+     * @return String headline sentiment string
+     */
     public static String generateHeadlineSentimentString(ArrayList<String> sentiments){
         StringBuilder string = new StringBuilder();
         int count = 0;

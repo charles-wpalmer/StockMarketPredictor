@@ -1,7 +1,6 @@
 package chp38;
 
 import chp38.Core.AppHandler;
-
 import java.util.Scanner;
 
 public class Main {
@@ -15,5 +14,6 @@ public class Main {
         AppHandler han = new AppHandler(comodity);
 
         han.run();
+
     }
 }

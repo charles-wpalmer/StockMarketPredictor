@@ -3,10 +3,10 @@ package chp38.Core;
 import chp38.APIHandler.AlphaVantage;
 import chp38.APIHandler.RedditApi;
 import chp38.APIHandler.ServerAPI;
-import chp38.Files.CSVFileReader;
+import chp38.Files.FileReader;
 import chp38.Files.WekaFileWriter;
-import chp38.SentimentAnalysis.SentimentAnalysis;
-import chp38.WEKA.WekaHandler;
+import chp38.ML.SentimentAnalysis;
+import chp38.ML.WekaHandler;
 import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,6 +54,11 @@ public class AppHandler{
      */
     private DailyInformation dailyInfo;
 
+    /**
+     * Default Constructor
+     *
+     * @param comodity
+     */
     public AppHandler(String comodity){
         this.Commodity = comodity;
 
@@ -65,9 +70,12 @@ public class AppHandler{
 
     /**
      * Method to handle/generate the training data
+     *
+     * @deprecated
+     * @throws IOException
      */
     public void handleTrainingData() throws IOException {
-        ArrayList<String> objects = CSVFileReader.readNewsFile(this.redditNews, this.SA);
+        ArrayList<String> objects = FileReader.readNewsFile(this.redditNews, this.SA);
 
         WekaFileWriter.generateTrainingArfFile(this.trainingFile, objects);
 
@@ -94,7 +102,7 @@ public class AppHandler{
      */
     private void prepareData(String file) throws Exception {
 
-        this.dailyInfo.setHeadlines(CSVFileReader.readUserNewsFile(file));
+        this.dailyInfo.setHeadlines(FileReader.readUserNewsFile(file));
 
         this.buildArffFile(this.dailyInfo.getHeadlines());
 

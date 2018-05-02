@@ -1,4 +1,4 @@
-package chp38.SentimentAnalysis;
+package chp38.ML;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunker;
@@ -32,6 +32,8 @@ import java.util.Set;
 
 /**
  * Expects to chunk 1 sentence at a time.
+ *
+ * Code provided by LingPipe
  */
 public class HeadlineChunker implements Chunker {
 
@@ -186,17 +188,36 @@ public class HeadlineChunker implements Chunker {
     private final HmmDecoder mPosTagger;
     private final TokenizerFactory mTokenizerFactory;
 
+    /**
+     *
+     * @param posTagger instance of HmmDecoder
+     * @param tokenizerFactory instance of TokenizerFactory
+     */
     public HeadlineChunker(HmmDecoder posTagger,
                            TokenizerFactory tokenizerFactory) {
         mPosTagger = posTagger;
         mTokenizerFactory = tokenizerFactory;
     }
 
+    /**
+     * Chunking the headline
+     *
+     * @param cSeq the char sequence
+     * @return Chunking
+     */
     public Chunking chunk(CharSequence cSeq) {
         char[] cs = Strings.toCharArray(cSeq);
         return chunk(cs,0,cs.length);
     }
 
+    /**
+     * Chunking the headline
+     *
+     * @param cs array of chars
+     * @param start int start
+     * @param end int end
+     * @return Chunking
+     */
     public Chunking chunk(char[] cs, int start, int end) {
 
         // tokenize
