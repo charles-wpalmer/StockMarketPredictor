@@ -74,7 +74,7 @@ public class AppHandler{
      * @deprecated
      * @throws IOException
      */
-    public void handleTrainingData() throws IOException {
+    private void handleTrainingData() throws IOException {
         ArrayList<String> objects = FileReader.readNewsFile(this.redditNews, this.SA);
 
         WekaFileWriter.generateTrainingArfFile(this.trainingFile, objects);
@@ -187,12 +187,14 @@ public class AppHandler{
      *
      * @throws Exception
      */
-    public void run() throws Exception {
+    public String run() throws Exception {
         this.displayMenu();
 
         String prediction = this.runWeka();
 
         this.handleOutput(prediction);
+
+        return prediction;
     }
 
     /**
