@@ -35,19 +35,24 @@ public class AppHandler{
     private WekaHandler weka;
 
     /**
-     * Variable to hold the path to training data.
+     *
      */
-    private String trainingFile = "./labelled.arff";
+    private String filesFolder;
 
     /**
      * Variable to hold the path to training data.
      */
-    private String redditNews = "./RedditNews.csv";
+    private String trainingFile = "/labelled.arff";
+
+    /**
+     * Variable to hold the path to training data.
+     */
+    private String redditNews = "/RedditNews.csv";
 
     /**
      * Variable to hold the path to test data.
      */
-    private String testFile = "./unlabelled.arff";
+    private String testFile = "/unlabelled.arff";
 
     /**
      * Variable to hold the DailyInformation class
@@ -59,11 +64,12 @@ public class AppHandler{
      *
      * @param comodity
      */
-    public AppHandler(String comodity){
+    public AppHandler(String comodity, String filesFolder){
         this.Commodity = comodity;
+        this.filesFolder = filesFolder;
 
         this.weka = new WekaHandler();
-        this.SA = new SentimentAnalysis();
+        this.SA = new SentimentAnalysis(filesFolder);
         this.AV = new AlphaVantage(this.Commodity);
         this.dailyInfo = new DailyInformation();
     }
@@ -77,7 +83,7 @@ public class AppHandler{
     private void handleTrainingData() throws IOException {
         ArrayList<String> objects = FileReader.readNewsFile(this.redditNews, this.SA);
 
-        WekaFileWriter.generateTrainingArfFile(this.trainingFile, objects);
+        WekaFileWriter.generateTrainingArfFile(this.filesFolder + this.trainingFile, objects);
 
     }
 
@@ -131,7 +137,7 @@ public class AppHandler{
         prices.addAll(headlineSentiments);
         prices.add("decrease");
 
-        WekaFileWriter.generateTestArfFile(this.testFile, prices);
+        WekaFileWriter.generateTestArfFile(this.filesFolder + this.testFile, prices);
     }
 
     /**
@@ -218,9 +224,9 @@ public class AppHandler{
      * @throws Exception
      */
     private String runWeka() throws Exception {
-        this.weka.loadAttributes(this.trainingFile);
+        this.weka.loadAttributes(this.filesFolder + this.trainingFile);
 
-        String prediction = this.weka.classifyData(this.testFile);
+        String prediction = this.weka.classifyData(this.filesFolder + this.testFile);
 
         return prediction;
     }

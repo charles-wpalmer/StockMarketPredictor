@@ -39,11 +39,17 @@ public class SentimentAnalysis {
     private TokenizerFactory tokenizerFactory;
 
     /**
+     * Variable to hold files location
+     */
+    private String filesFolder;
+
+    /**
      * For the chunking of the tokens
      */
     private HeadlineChunker chunker;
 
-    public SentimentAnalysis() {
+    public SentimentAnalysis(String filesFolder) {
+        this.filesFolder = filesFolder;
         this.corpus();
     }
 
@@ -51,7 +57,7 @@ public class SentimentAnalysis {
      * Method to load the Hmm model for the POS tagger, and chunker
      */
     public void loadHmmModel(){
-        String dir = "./train-brown";
+        String dir = this.filesFolder + "/train-brown";
         File hmmFile = new File(dir);
         int cacheSize = Integer.valueOf(256);
         FastCache<String,double[]> cache = new FastCache<String,double[]>(cacheSize);
@@ -214,7 +220,7 @@ public class SentimentAnalysis {
         String line = "";
         ArrayList<String> headlines = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new java.io.FileReader("./RedditNews.csv"))) {
+        try (BufferedReader br = new BufferedReader(new java.io.FileReader(this.filesFolder + "/RedditNews.csv"))) {
             while ((line = br.readLine()) != null) {
                 String[] data = FileReader.splitLine(line);
 

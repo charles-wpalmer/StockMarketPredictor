@@ -39,7 +39,7 @@ public class WekaFileWriter {
      * @throws IOException
      */
     public static void generateTestArfFile(String name, ArrayList data) throws IOException {
-        File file = new File("./" + name);
+        File file = new File(name);
 
         file.createNewFile();
 
@@ -78,7 +78,7 @@ public class WekaFileWriter {
      */
     public static void generateTrainingArfFile(String name, ArrayList<String> objects) throws IOException {
 
-        File file = new File("./" + name);
+        File file = new File(name);
 
         file.createNewFile();
 
