@@ -102,7 +102,7 @@ public class WekaHandler {
      * @throws Exception
      */
     public void testJ48Accuracy() throws Exception {
-        Instances data = this.getInstances("labelled.arff");
+        Instances data = this.getInstances("files/labelled.arff");
         data.setClassIndex(data.numAttributes() - 1);
         String[] options = new String[1];
         options[0] = "";
@@ -120,7 +120,7 @@ public class WekaHandler {
      * @throws Exception
      */
     public void testNBAccuracy() throws Exception {
-        Instances data = this.getInstances("labelled.arff");
+        Instances data = this.getInstances("files/labelled.arff");
         data.setClassIndex(data.numAttributes() - 1);
         String[] options = new String[1];
         options[0] = "";
