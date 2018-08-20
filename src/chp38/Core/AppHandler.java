@@ -3,10 +3,10 @@ package chp38.Core;
 import chp38.APIHandler.AlphaVantage;
 import chp38.APIHandler.RedditApi;
 import chp38.APIHandler.ServerAPI;
-import chp38.Files.CSVFileReader;
+import chp38.Files.FileReader;
 import chp38.Files.WekaFileWriter;
-import chp38.SentimentAnalysis.SentimentAnalysis;
-import chp38.WEKA.WekaHandler;
+import chp38.ML.SentimentAnalysis;
+import chp38.ML.WekaHandler;
 import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class AppHandler{
     /**
      * Variable to hold the name of the Comodity/market to predict
      */
-    private String Comodity;
+    private String Commodity;
 
     /**
      * Class SentimentAnalysis
@@ -35,41 +35,55 @@ public class AppHandler{
     private WekaHandler weka;
 
     /**
-     * Variable to hold the path to training data.
+     *
      */
-    private String trainingFile = "./labelled.arff";
+    private String filesFolder;
 
     /**
      * Variable to hold the path to training data.
      */
-    private String redditNews = "./RedditNews.csv";
+    private String trainingFile = "/labelled.arff";
+
+    /**
+     * Variable to hold the path to training data.
+     */
+    private String redditNews = "/RedditNews.csv";
 
     /**
      * Variable to hold the path to test data.
      */
-    private String testFile = "./unlabelled.arff";
+    private String testFile = "/unlabelled.arff";
 
     /**
      * Variable to hold the DailyInformation class
      */
     private DailyInformation dailyInfo;
 
-    public AppHandler(String comodity){
-        this.Comodity = comodity;
+    /**
+     * Default Constructor
+     *
+     * @param comodity
+     */
+    public AppHandler(String comodity, String filesFolder){
+        this.Commodity = comodity;
+        this.filesFolder = filesFolder;
 
         this.weka = new WekaHandler();
-        this.SA = new SentimentAnalysis();
-        this.AV = new AlphaVantage(this.Comodity);
+        this.SA = new SentimentAnalysis(filesFolder);
+        this.AV = new AlphaVantage(this.Commodity);
         this.dailyInfo = new DailyInformation();
     }
 
     /**
      * Method to handle/generate the training data
+     *
+     * @deprecated
+     * @throws IOException
      */
-    public void handleTrainingData() throws IOException {
-        ArrayList<String> objects = CSVFileReader.readNewsFile(this.redditNews, this.SA);
+    private void handleTrainingData() throws IOException {
+        ArrayList<String> objects = FileReader.readNewsFile(this.redditNews, this.SA);
 
-        WekaFileWriter.generateTrainingArfFile(this.trainingFile, objects);
+        WekaFileWriter.generateTrainingArfFile(this.filesFolder + this.trainingFile, objects);
 
     }
 
@@ -94,7 +108,7 @@ public class AppHandler{
      */
     private void prepareData(String file) throws Exception {
 
-        this.dailyInfo.setHeadlines(CSVFileReader.readUserNewsFile(file));
+        this.dailyInfo.setHeadlines(FileReader.readUserNewsFile(file));
 
         this.buildArffFile(this.dailyInfo.getHeadlines());
 
@@ -123,7 +137,7 @@ public class AppHandler{
         prices.addAll(headlineSentiments);
         prices.add("decrease");
 
-        WekaFileWriter.generateTestArfFile(this.testFile, prices);
+        WekaFileWriter.generateTestArfFile(this.filesFolder + this.testFile, prices);
     }
 
     /**
@@ -154,28 +168,21 @@ public class AppHandler{
             this.trainingFile = reader.nextLine();
         }
 
-        this.handleInputs(news, training, newsSource);
+        this.handleInputs(news, newsSource);
     }
 
     /**
      * Handle the user inputs from the menu, and run the appropriate methods.
      *
      * @param news
-     * @param training
      * @param newsFile
      * @throws Exception
      */
-    private void handleInputs(int news, int training, String newsFile) throws Exception {
+    private void handleInputs(int news, String newsFile) throws Exception {
         if(news == 1){
             prepareData(newsFile);
         } else {
             prepareData();
-        }
-
-        if(training == 1){
-            this.weka.loadAttributes(this.trainingFile);
-        } else {
-            this.weka.loadAttributes(this.trainingFile);
         }
     }
 
@@ -186,16 +193,41 @@ public class AppHandler{
      *
      * @throws Exception
      */
-    public void run() throws Exception {
+    public String run() throws Exception {
         this.displayMenu();
 
-        String prediction = this.weka.classifyData();
+        String prediction = this.runWeka();
 
-        int predictionId = ServerAPI.sendMarketPrediction(prediction, this.Comodity,
+        this.handleOutput(prediction);
+
+        return prediction;
+    }
+
+    /**
+     *
+     * @param prediction
+     * @throws IOException
+     */
+    private void handleOutput(String prediction) throws IOException {
+        int predictionId = ServerAPI.sendMarketPrediction(prediction, this.Commodity,
                 this.dailyInfo.getDailyHigh(), this.dailyInfo.getDailyLow());
 
         ServerAPI.sendNewsHeadlines(predictionId, this.dailyInfo.getHeadlines(), this.dailyInfo.getHeadlineSentiments());
 
+        System.out.println("Prediction for " + this.Commodity + " is: " + prediction);
     }
 
+    /**
+     * Method to load the training data into Weka and classify the new data.
+     *
+     * @return String Prediction
+     * @throws Exception
+     */
+    private String runWeka() throws Exception {
+        this.weka.loadAttributes(this.filesFolder + this.trainingFile);
+
+        String prediction = this.weka.classifyData(this.filesFolder + this.testFile);
+
+        return prediction;
+    }
 }

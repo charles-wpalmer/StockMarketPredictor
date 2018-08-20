@@ -36,13 +36,14 @@ public class WekaFileWriter {
      *
      * @param name name of the file
      * @param data data to generate the file with
+     * @throws IOException
      */
     public static void generateTestArfFile(String name, ArrayList data) throws IOException {
-        File file = new File("./" + name);
+        File file = new File(name);
 
         file.createNewFile();
 
-        FileWriter writer = new FileWriter(file);
+        java.io.FileWriter writer = new java.io.FileWriter(file);
 
         writer.write("@relation myrelation");
         writer.write(System.getProperty( "line.separator" ));
@@ -72,16 +73,16 @@ public class WekaFileWriter {
     /**
      * Method to build the training arff file given a lis of the string objects.
      *
-     * @param name
+     * @param name name of the file to be created
      * @param objects
      */
     public static void generateTrainingArfFile(String name, ArrayList<String> objects) throws IOException {
 
-        File file = new File("./" + name);
+        File file = new File(name);
 
         file.createNewFile();
 
-        FileWriter writer = new FileWriter(file);
+        java.io.FileWriter writer = new java.io.FileWriter(file);
 
         writer.write("@relation myrelation");
         writer.write(System.getProperty( "line.separator" ));

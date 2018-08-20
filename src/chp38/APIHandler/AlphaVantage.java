@@ -43,6 +43,9 @@ public class AlphaVantage {
     /**
      * Get the past daily prices for a given comodity
      *
+     * @return ArrayList of the prices
+     * @throws IOException
+     * @throws ParseException
      */
     public ArrayList<String> getDailyPrices() throws IOException, ParseException {
         JSONParser parser = new JSONParser();
@@ -50,6 +53,12 @@ public class AlphaVantage {
         Object object = parser.parse(this.sendRequest());
 
         JSONObject jsonObject = (JSONObject) object;
+
+
+        if(jsonObject.toString().contains("Error Message")) {
+            System.out.println("Incorrect Commodity Entered");
+            System.exit(0);
+        }
 
         object = parser.parse(jsonObject.get("Time Series (Daily)").toString());
         jsonObject = (JSONObject) object;
@@ -74,7 +83,7 @@ public class AlphaVantage {
      * @throws IOException
      */
     private String sendRequest() throws IOException {
-        String requestURL = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+this.commodity+"&apikey=YC8VVZQTBQZPJG27";
+        String requestURL = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+this.commodity+"&apikey=" + this.APIKey;
 
         URL obj = new URL(requestURL);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
