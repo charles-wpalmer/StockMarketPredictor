@@ -135,7 +135,7 @@ public class AppHandler{
         ArrayList<String> prices = this.dailyInfo.getPriceList();
 
         prices.addAll(headlineSentiments);
-        prices.add("decrease");
+        prices.add("?");
 
         WekaFileWriter.generateTestArfFile(this.filesFolder + this.testFile, prices);
     }

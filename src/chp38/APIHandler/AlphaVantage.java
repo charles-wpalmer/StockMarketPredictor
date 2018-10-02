@@ -63,7 +63,7 @@ public class AlphaVantage {
         object = parser.parse(jsonObject.get("Time Series (Daily)").toString());
         jsonObject = (JSONObject) object;
 
-        object = parser.parse(jsonObject.get("2018-03-15").toString());
+        object = parser.parse(jsonObject.get("2018-09-28").toString());
         jsonObject = (JSONObject) object;
 
         ArrayList dailyPrices = new ArrayList();

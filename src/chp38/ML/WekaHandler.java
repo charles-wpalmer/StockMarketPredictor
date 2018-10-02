@@ -75,7 +75,7 @@ public class WekaHandler {
             test.instance(i).setClassValue(clsLabel);
         }
 
-        return this.arrayClasses[(int)Math.round(clsLabel)];
+        return test.classAttribute().value(clsLabel.intValue());
     }
 
     /**
