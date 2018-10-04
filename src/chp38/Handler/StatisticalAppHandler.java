@@ -22,13 +22,19 @@ public class StatisticalAppHandler implements IHandler{
         this.filesFolder = filesFolder;
     }
 
-    /**
-     * Run the App
-     * @return null
-     * @throws Exception e
-     */
+    @Override
     public String run() throws Exception {
         return null;
+    }
+
+    @Override
+    public void displayMenu() throws Exception {
+
+    }
+
+    @Override
+    public void prepareData() throws Exception {
+
     }
 
 }
