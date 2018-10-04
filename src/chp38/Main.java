@@ -1,10 +1,10 @@
 package chp38;
 
-import chp38.Core.AppHandler;
+import chp38.Factory.AbstractFactory;
+import chp38.Factory.FactoryProducer;
+import chp38.Handler.IHandler;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Scanner;
 
 public class Main {
@@ -24,8 +24,9 @@ public class Main {
         System.out.println("Please enter the short name of the Commodity/market you wish to predict...");
         String comodity = reader.nextLine();
 
-        AppHandler han = new AppHandler(comodity, filesFolder);
 
+        AbstractFactory AppFactory = FactoryProducer.getAppHandlerFactory();
+        IHandler han = AppFactory.getAppHandler("fundamental", comodity, filesFolder);
         han.run();
 
     }

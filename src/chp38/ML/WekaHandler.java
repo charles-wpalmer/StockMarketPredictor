@@ -10,7 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Random;
 
-public class WekaHandler {
+public class WekaHandler implements IWeka{
 
     /**
      * Variable to hold the J48 tree

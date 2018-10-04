@@ -1,8 +1,9 @@
-package chp38.Core;
+package chp38.Handler;
 
 import chp38.APIHandler.AlphaVantage;
 import chp38.APIHandler.RedditApi;
 import chp38.APIHandler.ServerAPI;
+import chp38.Core.DailyInformation;
 import chp38.Files.FileReader;
 import chp38.Files.WekaFileWriter;
 import chp38.ML.SentimentAnalysis;
@@ -12,7 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class AppHandler{
+public class FundamentalAppHandler implements IHandler{
 
     /**
      * Variable to hold the name of the Comodity/market to predict
@@ -35,7 +36,7 @@ public class AppHandler{
     private WekaHandler weka;
 
     /**
-     *
+     * String filesFolder
      */
     private String filesFolder;
 
@@ -61,15 +62,13 @@ public class AppHandler{
 
     /**
      * Default Constructor
-     *
-     * @param comodity
      */
-    public AppHandler(String comodity, String filesFolder){
-        this.Commodity = comodity;
+    public FundamentalAppHandler(String commodity, String filesFolder){
+        this.Commodity = commodity;
         this.filesFolder = filesFolder;
 
         this.weka = new WekaHandler();
-        this.SA = new SentimentAnalysis(filesFolder);
+        this.SA = new SentimentAnalysis(this.filesFolder);
         this.AV = new AlphaVantage(this.Commodity);
         this.dailyInfo = new DailyInformation();
     }
