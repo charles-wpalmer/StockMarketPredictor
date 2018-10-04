@@ -27,17 +27,27 @@ public class WekaHandler implements IWeka{
      */
     private static String[] arrayClasses = {"decrease", "increase"};
 
-    /**
-     * Method to load the attributes from the user given file.
-     *
-     * @param file the file to load attributes from
-     * @throws Exception
-     */
+    @Override
     public void loadAttributes(String file) throws Exception {
 
         Instances data = this.getInstances(file);
 
         this.buildModel(data);
+    }
+
+    @Override
+    public String classifyData(String file) throws Exception {
+        Instances test = this.getInstances(file);
+        Double clsLabel = 0.0;
+
+        test.setClassIndex(test.numAttributes() - 1);
+
+        for (int i = 0; i < test.numInstances(); i++) {
+            clsLabel = this.tree.classifyInstance(test.instance(i));
+            test.instance(i).setClassValue(clsLabel);
+        }
+
+        return test.classAttribute().value(clsLabel.intValue());
     }
 
     /**
@@ -57,35 +67,13 @@ public class WekaHandler implements IWeka{
     }
 
     /**
-     * Methos to classify new data, based on the built tree from the
-     * training data
-     *
-     * @param file the file containing object to classify
-     * @throws Exception
-     * @return String classification (increase|decrease)
-     */
-    public String classifyData(String file) throws Exception {
-        Instances test = this.getInstances(file);
-        Double clsLabel = 0.0;
-
-        test.setClassIndex(test.numAttributes() - 1);
-
-        for (int i = 0; i < test.numInstances(); i++) {
-            clsLabel = this.tree.classifyInstance(test.instance(i));
-            test.instance(i).setClassValue(clsLabel);
-        }
-
-        return test.classAttribute().value(clsLabel.intValue());
-    }
-
-    /**
      * Method to return the instances from the .arff files
      *
      * @param file file to get the instanes from
      * @return Instances the instances from the arff file
      * @throws IOException
      */
-    public Instances getInstances(String file) throws IOException {
+    private Instances getInstances(String file) throws IOException {
         BufferedReader reader = new BufferedReader(
                 new FileReader(file));
 
