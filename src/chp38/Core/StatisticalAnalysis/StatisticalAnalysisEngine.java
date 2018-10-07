@@ -1,6 +1,6 @@
-package chp38.Core;
+package chp38.Core.StatisticalAnalysis;
 
-public class StaticticalAnalysis {
+public class StatisticalAnalysisEngine {
     // Functions to calculate given statistical analysis types:
     //      - SMA
 }

@@ -1,7 +1,7 @@
-package chp38.Factory;
+package chp38.Core.Factory;
 
-import chp38.Handler.IHandler;
-import chp38.ML.IWeka;
+import chp38.Core.Handler.IHandler;
+import chp38.ML.Weka.IWeka;
 
 public abstract class AbstractFactory {
 

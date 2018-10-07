@@ -1,39 +1,33 @@
-package chp38.Core;
+package chp38.Core.DailyInformation;
 
 import java.util.ArrayList;
 
 public class DailyInformation {
-    private ArrayList<String> headlines;
 
+    /**
+     * Double dailyLow
+     */
     private Double dailyLow;
 
+    /**
+     * Double dailyHigh
+     */
     private Double dailyHigh;
 
+    /**
+     * Double open
+     */
     private Double open;
 
+    /**
+     * Double close
+     */
     private Double close;
 
+    /**
+     * ArrayList priceList
+     */
     private ArrayList<String> priceList;
-
-    private ArrayList<String> headlineSentiments;
-
-    /**
-     * Get the list of headlines
-     *
-     * @return List of headlines
-     */
-    public ArrayList<String> getHeadlines() {
-        return headlines;
-    }
-
-    /**
-     * Set the list of headlines
-     *
-     * @param headlines
-     */
-    public void setHeadlines(ArrayList<String> headlines) {
-        this.headlines = headlines;
-    }
 
     /**
      * Get the previous daily low of the market
@@ -47,7 +41,7 @@ public class DailyInformation {
     /**
      * Set the previous daily low for the market
      *
-     * @param dailyLow
+     * @param dailyLow Double
      */
     public void setDailyLow(Double dailyLow) {
         this.dailyLow = dailyLow;
@@ -65,7 +59,7 @@ public class DailyInformation {
     /**
      * Set the previous daily high of the market
      *
-     * @param dailyHigh
+     * @param dailyHigh Souble
      */
     public void setDailyHigh(Double dailyHigh) {
         this.dailyHigh = dailyHigh;
@@ -83,7 +77,7 @@ public class DailyInformation {
     /**
      * Set the previous day open of the market
      *
-     * @param open
+     * @param open Double
      */
     public void setOpen(Double open) {
         this.open = open;
@@ -101,7 +95,7 @@ public class DailyInformation {
     /**
      * Set the previous day close of the market
      *
-     * @param close
+     * @param close Double
      */
     public void setClose(Double close) {
         this.close = close;
@@ -119,7 +113,7 @@ public class DailyInformation {
     /**
      * Set the list of prices for the previous day
      *
-     * @param prices
+     * @param prices ArrayList
      */
     public void setPriceList(ArrayList<String> prices) {
         this.priceList = prices;
@@ -130,21 +124,4 @@ public class DailyInformation {
         this.close = Double.parseDouble(prices.get(3));
     }
 
-    /**
-     * Return a list of sentiments associated with the news headlines
-     *
-     * @return list of the sentiments
-     */
-    public ArrayList<String> getHeadlineSentiments() {
-        return headlineSentiments;
-    }
-
-    /**
-     * Set the list of headlines sentiments
-     *
-     * @param headlineSentiments
-     */
-    public void setHeadlineSentiments(ArrayList<String> headlineSentiments) {
-        this.headlineSentiments = headlineSentiments;
-    }
 }

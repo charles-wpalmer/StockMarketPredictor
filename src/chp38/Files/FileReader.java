@@ -1,6 +1,6 @@
 package chp38.Files;
 
-import chp38.ML.SentimentAnalysis;
+import chp38.ML.SentimentAnalysis.SentimentAnalysis;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

@@ -1,4 +1,6 @@
-package chp38.Handler;
+package chp38.Core.Handler;
+
+import java.io.IOException;
 
 public interface IHandler {
 
@@ -25,5 +27,25 @@ public interface IHandler {
      * @throws Exception e
      */
     void prepareData() throws Exception;
+
+    /**
+     * Set the Weka Handler to use
+     */
+    void setWekaHandler();
+
+    /**
+     * Method to load the training data into Weka and classify the new data.
+     *
+     * @return String Prediction
+     * @throws Exception e
+     */
+    String runWeka() throws Exception;
+
+    /**
+     *
+     * @param prediction String
+     * @throws IOException e
+     */
+    void handleOutput(String prediction) throws IOException;
 
 }

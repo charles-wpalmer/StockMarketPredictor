@@ -1,13 +1,15 @@
-package chp38.Handler;
+package chp38.Core.Handler;
 
 import chp38.APIHandler.AlphaVantage;
 import chp38.APIHandler.RedditApi;
 import chp38.APIHandler.ServerAPI;
-import chp38.Core.DailyInformation;
+import chp38.Core.DailyInformation.FundamentalInformation;
+import chp38.Core.Factory.AbstractFactory;
+import chp38.Core.Factory.FactoryProducer;
 import chp38.Files.FileReader;
 import chp38.Files.WekaFileWriter;
-import chp38.ML.SentimentAnalysis;
-import chp38.ML.WekaHandler;
+import chp38.ML.SentimentAnalysis.SentimentAnalysis;
+import chp38.ML.Weka.IWeka;
 import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ public class FundamentalAppHandler implements IHandler{
     /**
      * Weka Handler
      */
-    private WekaHandler weka;
+    private IWeka weka;
 
     /**
      * String filesFolder
@@ -56,9 +58,9 @@ public class FundamentalAppHandler implements IHandler{
     private String testFile = "/unlabelled.arff";
 
     /**
-     * Variable to hold the DailyInformation class
+     * Variable to hold the FundamentalInformation class
      */
-    private DailyInformation dailyInfo;
+    private FundamentalInformation dailyInfo;
 
     /**
      * Default Constructor
@@ -67,10 +69,10 @@ public class FundamentalAppHandler implements IHandler{
         this.Commodity = commodity;
         this.filesFolder = filesFolder;
 
-        this.weka = new WekaHandler();
+        this.setWekaHandler();
         this.SA = new SentimentAnalysis(this.filesFolder);
         this.AV = new AlphaVantage(this.Commodity);
-        this.dailyInfo = new DailyInformation();
+        this.dailyInfo = new FundamentalInformation();
     }
 
     @Override
@@ -91,6 +93,13 @@ public class FundamentalAppHandler implements IHandler{
         this.dailyInfo.setHeadlines(Reddit.getHeadlines());
 
         this.buildArffFile(this.dailyInfo.getHeadlines());
+    }
+
+    @Override
+    public void setWekaHandler() {
+        AbstractFactory WekaFactory = FactoryProducer.getWekaHandler();
+
+        this.weka = WekaFactory.getWekaHandler("NB");
     }
 
     @Override
@@ -193,7 +202,7 @@ public class FundamentalAppHandler implements IHandler{
      * @param prediction String
      * @throws IOException e
      */
-    private void handleOutput(String prediction) throws IOException {
+    public void handleOutput(String prediction) throws IOException {
         int predictionId = ServerAPI.sendMarketPrediction(prediction, this.Commodity,
                 this.dailyInfo.getDailyHigh(), this.dailyInfo.getDailyLow());
 
@@ -208,7 +217,7 @@ public class FundamentalAppHandler implements IHandler{
      * @return String Prediction
      * @throws Exception e
      */
-    private String runWeka() throws Exception {
+    public String runWeka() throws Exception {
         this.weka.loadAttributes(this.filesFolder + this.trainingFile);
 
         String prediction = this.weka.classifyData(this.filesFolder + this.testFile);

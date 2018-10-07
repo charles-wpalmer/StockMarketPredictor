@@ -1,7 +1,7 @@
-package chp38.Factory;
+package chp38.Core.Factory;
 
-import chp38.Factory.AppHandler.AppHandlerFactory;
-import chp38.Factory.WekaHandler.WekaHandlerFactory;
+import chp38.Core.Factory.AppHandler.AppHandlerFactory;
+import chp38.Core.Factory.WekaHandler.WekaHandlerFactory;
 
 public class FactoryProducer {
 

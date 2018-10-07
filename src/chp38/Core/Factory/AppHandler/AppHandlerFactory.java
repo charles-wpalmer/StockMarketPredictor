@@ -1,10 +1,10 @@
-package chp38.Factory.AppHandler;
+package chp38.Core.Factory.AppHandler;
 
-import chp38.Factory.AbstractFactory;
-import chp38.Handler.FundamentalAppHandler;
-import chp38.Handler.IHandler;
-import chp38.Handler.StatisticalAppHandler;
-import chp38.ML.IWeka;
+import chp38.Core.Factory.AbstractFactory;
+import chp38.Core.Handler.FundamentalAppHandler;
+import chp38.Core.Handler.IHandler;
+import chp38.Core.Handler.StatisticalAppHandler;
+import chp38.ML.Weka.IWeka;
 
 public class AppHandlerFactory extends AbstractFactory {
 

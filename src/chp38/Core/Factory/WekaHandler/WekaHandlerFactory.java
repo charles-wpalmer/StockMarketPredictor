@@ -1,10 +1,10 @@
-package chp38.Factory.WekaHandler;
+package chp38.Core.Factory.WekaHandler;
 
-import chp38.Factory.AbstractFactory;
-import chp38.Handler.IHandler;
-import chp38.ML.IWeka;
-import chp38.ML.J48Handler;
-import chp38.ML.WekaHandler;
+import chp38.Core.Factory.AbstractFactory;
+import chp38.Core.Handler.IHandler;
+import chp38.ML.Weka.IWeka;
+import chp38.ML.Weka.J48Handler;
+import chp38.ML.Weka.NBHandler;
 
 public class WekaHandlerFactory extends AbstractFactory {
 
@@ -26,7 +26,7 @@ public class WekaHandlerFactory extends AbstractFactory {
 
         switch(type){
             case "NB":
-                factory = new WekaHandler();
+                factory = new NBHandler();
                 break;
             case "J48":
                 factory = new J48Handler();
