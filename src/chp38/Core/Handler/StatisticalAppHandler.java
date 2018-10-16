@@ -1,10 +1,13 @@
 package chp38.Core.Handler;
 
+import chp38.APIHandler.AlphaVantage;
+import chp38.Core.DailyInformation.StatisticalInformation;
 import chp38.Core.Factory.AbstractFactory;
 import chp38.Core.Factory.FactoryProducer;
 import chp38.ML.Weka.IWeka;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class StatisticalAppHandler implements IHandler {
@@ -26,6 +29,16 @@ public class StatisticalAppHandler implements IHandler {
     private String trainingFile;
 
     /**
+     * Class AlphaVantage
+     */
+    private AlphaVantage AV;
+
+    /**
+     * Variable to hold the StatisticalInformation class
+     */
+    private StatisticalInformation dailyInfo;
+
+    /**
      * Constructor
      *
      * @param commodity   String
@@ -34,6 +47,9 @@ public class StatisticalAppHandler implements IHandler {
     public StatisticalAppHandler(String commodity, String filesFolder) {
         this.commodity = commodity;
         this.filesFolder = filesFolder;
+
+        this.AV = new AlphaVantage(this.commodity);
+        this.dailyInfo = new StatisticalInformation();
     }
 
     @Override
@@ -65,7 +81,12 @@ public class StatisticalAppHandler implements IHandler {
 
     @Override
     public void prepareData() throws Exception {
+        // Get the daily prices, and calculate the SMA over the past 10 days worth of data
+        // Set the information in the this.dailyInfo class
+        // Build the arff file
 
+        ArrayList<String> prices = this.AV.getDailyPrices();
+        System.out.println(prices);
     }
 
     @Override
