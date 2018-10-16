@@ -14,15 +14,28 @@ public class App {
      */
     private AbstractFactory AppFactory;
 
+    /**
+     * App Constructor
+     */
     public App(){
         this.AppFactory = FactoryProducer.getAppHandlerFactory();
     }
 
+    /**
+     * Get and run the handler
+     * @param comodity String
+     * @param filesFolder String
+     * @throws Exception e
+     */
     private void run(String comodity, String filesFolder)throws Exception {
         IHandler han = this.AppFactory.getAppHandler("fundamental", comodity, filesFolder);
         han.run();
     }
 
+    /**
+     * Display the Menu to the user
+     * @throws Exception e
+     */
     private void menu() throws Exception {
         Scanner reader = new Scanner(System.in);
 
@@ -41,6 +54,10 @@ public class App {
         this.run(comodity, filesFolder);
     }
 
+    /**
+     * Initialize the application
+     * @throws Exception e
+     */
     public  void initialize() throws Exception {
         this.menu();
     }
