@@ -28,6 +28,11 @@ public class FundamentalAppHandler implements IHandler{
     private SentimentAnalysis SA;
 
     /**
+     * RedditApi
+     */
+    private RedditApi redditApi;
+
+    /**
      * Class AlphaVantage
      */
     private AlphaVantage AV;
@@ -72,6 +77,7 @@ public class FundamentalAppHandler implements IHandler{
         this.setWekaHandler();
         this.SA = new SentimentAnalysis(this.filesFolder);
         this.AV = new AlphaVantage(this.Commodity);
+        this.redditApi = new RedditApi();
         this.dailyInfo = new FundamentalInformation();
     }
 
@@ -88,9 +94,8 @@ public class FundamentalAppHandler implements IHandler{
 
     @Override
     public void prepareData() throws Exception {
-        RedditApi Reddit = new RedditApi();
 
-        this.dailyInfo.setHeadlines(Reddit.getHeadlines());
+        this.dailyInfo.setHeadlines(this.redditApi.getHeadlines());
 
         this.buildArffFile(this.dailyInfo.getHeadlines());
     }
