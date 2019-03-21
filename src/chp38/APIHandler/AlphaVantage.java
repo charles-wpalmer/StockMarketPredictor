@@ -1,6 +1,5 @@
 package chp38.APIHandler;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -11,7 +10,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Set;
 
 /**
  *  A class to handle the API calls to Alpha vantage to gain
@@ -44,34 +43,31 @@ public class AlphaVantage {
      * Get the past daily prices for a given comodity
      *
      * @return ArrayList of the prices
-     * @throws IOException
-     * @throws ParseException
+     * @throws IOException IOe
+     * @throws ParseException e
      */
     public ArrayList<String> getDailyPrices() throws IOException, ParseException {
+        String data = this.sendRequest();
         JSONParser parser = new JSONParser();
 
-        Object object = parser.parse(this.sendRequest());
-
-        JSONObject jsonObject = (JSONObject) object;
-
+        JSONObject jsonObject = (JSONObject) parser.parse(data);
 
         if(jsonObject.toString().contains("Error Message")) {
             System.out.println("Incorrect Commodity Entered");
             System.exit(0);
         }
 
-        object = parser.parse(jsonObject.get("Time Series (Daily)").toString());
-        jsonObject = (JSONObject) object;
+        JSONObject days = (JSONObject) jsonObject.get("Time Series (Daily)");
 
-        object = parser.parse(jsonObject.get("2018-09-28").toString());
-        jsonObject = (JSONObject) object;
+        Set<String> dates = days.keySet();
+        JSONObject lastDay = (JSONObject) days.get(dates.iterator().next());
 
-        ArrayList dailyPrices = new ArrayList();
-        dailyPrices.add(jsonObject.get("1. open").toString());
-        dailyPrices.add(jsonObject.get("2. high").toString());
-        dailyPrices.add(jsonObject.get("3. low").toString());
-        dailyPrices.add(jsonObject.get("4. close").toString());
-        dailyPrices.add(jsonObject.get("5. volume").toString());
+        Set<String> stats = lastDay.keySet();
+
+        ArrayList<String> dailyPrices = new ArrayList<>();
+        for(String stat : stats){
+            dailyPrices.add(lastDay.get(stat).toString());
+        }
 
         return dailyPrices;
     }

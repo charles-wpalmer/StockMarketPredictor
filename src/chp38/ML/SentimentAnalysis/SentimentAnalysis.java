@@ -1,4 +1,4 @@
-package chp38.ML;
+package chp38.ML.SentimentAnalysis;
 import chp38.Files.FileReader;
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;

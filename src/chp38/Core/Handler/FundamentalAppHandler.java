@@ -1,18 +1,21 @@
-package chp38.Core;
+package chp38.Core.Handler;
 
 import chp38.APIHandler.AlphaVantage;
 import chp38.APIHandler.RedditApi;
 import chp38.APIHandler.ServerAPI;
+import chp38.Core.DailyInformation.FundamentalInformation;
+import chp38.Core.Factory.AbstractFactory;
+import chp38.Core.Factory.FactoryProducer;
 import chp38.Files.FileReader;
 import chp38.Files.WekaFileWriter;
-import chp38.ML.SentimentAnalysis;
-import chp38.ML.WekaHandler;
+import chp38.ML.SentimentAnalysis.SentimentAnalysis;
+import chp38.ML.Weka.IWeka;
 import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class AppHandler{
+public class FundamentalAppHandler implements IHandler{
 
     /**
      * Variable to hold the name of the Comodity/market to predict
@@ -25,6 +28,11 @@ public class AppHandler{
     private SentimentAnalysis SA;
 
     /**
+     * RedditApi
+     */
+    private RedditApi redditApi;
+
+    /**
      * Class AlphaVantage
      */
     private AlphaVantage AV;
@@ -32,10 +40,10 @@ public class AppHandler{
     /**
      * Weka Handler
      */
-    private WekaHandler weka;
+    private IWeka weka;
 
     /**
-     *
+     * String filesFolder
      */
     private String filesFolder;
 
@@ -55,96 +63,51 @@ public class AppHandler{
     private String testFile = "/unlabelled.arff";
 
     /**
-     * Variable to hold the DailyInformation class
+     * Variable to hold the FundamentalInformation class
      */
-    private DailyInformation dailyInfo;
+    private FundamentalInformation dailyInfo;
 
     /**
      * Default Constructor
-     *
-     * @param comodity
      */
-    public AppHandler(String comodity, String filesFolder){
-        this.Commodity = comodity;
+    public FundamentalAppHandler(String commodity, String filesFolder){
+        this.Commodity = commodity;
         this.filesFolder = filesFolder;
 
-        this.weka = new WekaHandler();
-        this.SA = new SentimentAnalysis(filesFolder);
+        this.setWekaHandler();
+        this.SA = new SentimentAnalysis(this.filesFolder);
         this.AV = new AlphaVantage(this.Commodity);
-        this.dailyInfo = new DailyInformation();
+        this.redditApi = new RedditApi();
+        this.dailyInfo = new FundamentalInformation();
     }
 
-    /**
-     * Method to handle/generate the training data
-     *
-     * @deprecated
-     * @throws IOException
-     */
-    private void handleTrainingData() throws IOException {
-        ArrayList<String> objects = FileReader.readNewsFile(this.redditNews, this.SA);
+    @Override
+    public String run() throws Exception {
+        this.displayMenu();
 
-        WekaFileWriter.generateTrainingArfFile(this.filesFolder + this.trainingFile, objects);
+        String prediction = this.runWeka();
 
+        this.handleOutput(prediction);
+
+        return prediction;
     }
 
-    /**
-     * Method to prepare the training data. Pulls data from the Reddit API
-     *
-     * @throws Exception
-     */
-    private void prepareData() throws Exception {
-        RedditApi Reddit = new RedditApi();
+    @Override
+    public void prepareData() throws Exception {
 
-        this.dailyInfo.setHeadlines(Reddit.getHeadlines());
+        this.dailyInfo.setHeadlines(this.redditApi.getHeadlines());
 
         this.buildArffFile(this.dailyInfo.getHeadlines());
     }
 
-    /**
-     * Method to prepare the training data. Parses the file provided by the user
-     *
-     * @param file
-     * @throws Exception
-     */
-    private void prepareData(String file) throws Exception {
+    @Override
+    public void setWekaHandler() {
+        AbstractFactory WekaFactory = FactoryProducer.getWekaHandler();
 
-        this.dailyInfo.setHeadlines(FileReader.readUserNewsFile(file));
-
-        this.buildArffFile(this.dailyInfo.getHeadlines());
-
+        this.weka = WekaFactory.getWekaHandler("NB");
     }
 
-    /**
-     * Method to build the arff file. Detects the sentiment of the provided news headlines,
-     * and combines it with the stock market price information.
-     *
-     * @param headlines
-     * @throws IOException
-     * @throws ParseException
-     */
-    private void buildArffFile(ArrayList<String> headlines) throws IOException, ParseException {
-        ArrayList<String> headlineSentiments = new ArrayList();
-
-        for(int c = 0; c < 25; c++){
-            headlineSentiments.add(String.valueOf(this.SA.detectSentiment(headlines.get(c))));
-        }
-
-        this.dailyInfo.setHeadlineSentiments(headlineSentiments);
-        this.dailyInfo.setPriceList(this.AV.getDailyPrices());
-
-        ArrayList<String> prices = this.dailyInfo.getPriceList();
-
-        prices.addAll(headlineSentiments);
-        prices.add("?");
-
-        WekaFileWriter.generateTestArfFile(this.filesFolder + this.testFile, prices);
-    }
-
-    /**
-     * Display the menu, to gain user inputs.
-     *
-     * @throws Exception
-     */
+    @Override
     public void displayMenu() throws Exception {
         Scanner reader = new Scanner(System.in);
         String newsSource = "";
@@ -172,11 +135,64 @@ public class AppHandler{
     }
 
     /**
+     * Method to handle/generate the training data
+     *
+     * @deprecated
+     * @throws IOException e
+     */
+    private void handleTrainingData() throws IOException {
+        ArrayList<String> objects = FileReader.readNewsFile(this.redditNews, this.SA);
+
+        WekaFileWriter.generateTrainingArfFile(this.filesFolder + this.trainingFile, objects);
+
+    }
+
+    /**
+     * Method to prepare the training data. Parses the file provided by the user
+     *
+     * @param file String
+     * @throws Exception e
+     */
+    private void prepareData(String file) throws Exception {
+
+        this.dailyInfo.setHeadlines(FileReader.readUserNewsFile(file));
+
+        this.buildArffFile(this.dailyInfo.getHeadlines());
+
+    }
+
+    /**
+     * Method to build the arff file. Detects the sentiment of the provided news headlines,
+     * and combines it with the stock market price information.
+     *
+     * @param headlines ArrayList
+     * @throws IOException e
+     * @throws ParseException e
+     */
+    private void buildArffFile(ArrayList<String> headlines) throws IOException, ParseException {
+        ArrayList<String> headlineSentiments = new ArrayList();
+
+        for(int c = 0; c < 25; c++){
+            headlineSentiments.add(String.valueOf(this.SA.detectSentiment(headlines.get(c))));
+        }
+
+        this.dailyInfo.setHeadlineSentiments(headlineSentiments);
+        this.dailyInfo.setPriceList(this.AV.getDailyPrices());
+
+        ArrayList<String> prices = this.dailyInfo.getPriceList();
+
+        prices.addAll(headlineSentiments);
+        prices.add("?");
+
+        WekaFileWriter.generateTestArfFile(this.filesFolder + this.testFile, prices);
+    }
+
+    /**
      * Handle the user inputs from the menu, and run the appropriate methods.
      *
-     * @param news
-     * @param newsFile
-     * @throws Exception
+     * @param news int
+     * @param newsFile String
+     * @throws Exception e
      */
     private void handleInputs(int news, String newsFile) throws Exception {
         if(news == 1){
@@ -187,28 +203,11 @@ public class AppHandler{
     }
 
     /**
-     * Method to start running the program. Prepares training and test data
-     * from the given files, then builds the model using weka, and classifys
-     * the data.
      *
-     * @throws Exception
+     * @param prediction String
+     * @throws IOException e
      */
-    public String run() throws Exception {
-        this.displayMenu();
-
-        String prediction = this.runWeka();
-
-        this.handleOutput(prediction);
-
-        return prediction;
-    }
-
-    /**
-     *
-     * @param prediction
-     * @throws IOException
-     */
-    private void handleOutput(String prediction) throws IOException {
+    public void handleOutput(String prediction) throws IOException {
         int predictionId = ServerAPI.sendMarketPrediction(prediction, this.Commodity,
                 this.dailyInfo.getDailyHigh(), this.dailyInfo.getDailyLow());
 
@@ -221,9 +220,9 @@ public class AppHandler{
      * Method to load the training data into Weka and classify the new data.
      *
      * @return String Prediction
-     * @throws Exception
+     * @throws Exception e
      */
-    private String runWeka() throws Exception {
+    public String runWeka() throws Exception {
         this.weka.loadAttributes(this.filesFolder + this.trainingFile);
 
         String prediction = this.weka.classifyData(this.filesFolder + this.testFile);

@@ -1,10 +1,8 @@
 package chp38.Files;
 
-import chp38.ML.SentimentAnalysis;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
